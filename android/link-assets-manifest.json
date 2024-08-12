@@ -1,0 +1,13 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "frontend/assets/fonts/Arial Rounded MT Bold.ttf",
+      "sha1": "d7a980ae844b8f90d67dbc2a5abf083f7f5c39b5"
+    },
+    {
+      "path": "frontend/assets/fonts/Poppins-Medium.ttf",
+      "sha1": "283f21b44efbdbf276ba802be2d949a36bbc4233"
+    }
+  ]
+}

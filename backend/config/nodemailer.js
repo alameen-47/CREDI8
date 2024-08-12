@@ -1,5 +1,7 @@
+// config/nodemailer.js
 import nodemailer from 'nodemailer';
-c
+import dotenv from 'dotenv';
+dotenv.config(); // Load environment variables
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -10,7 +12,7 @@ const transporter = nodemailer.createTransport({
   secureConnection: false,
   auth: {
     user: process.env.EMAIL,
-    pass: processColor.env.EMAIL_PASSOWRD,
+    pass: process.env.EMAIL_PASSWORD,
   },
   tls: {
     rejectAuthorized: true,
