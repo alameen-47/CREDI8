@@ -1,4 +1,3 @@
-
 import {
   View,
   Text,
@@ -49,7 +48,7 @@ export default function AddCustomerScreen() {
         />
         <View
           style={styles.contentContainer}
-          className="absolute z-50 opacity-100">
+          className="absolute z-50 opacity-100 h-[100%] w-[100%]">
           <Text
             style={[{fontSize: wp(7)}, styles.Text, styles.shadow]}
             className="text-center mt-[10%] text-[#F4F1D6]">

@@ -15,9 +15,9 @@ connectDB();
 const app = express();
 
 //middleWare
-app.use(morgan('dev'));
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
+app.use(morgan('dev'));
 
 //PORT
 const PORT = process.env.PORT || 8086;
