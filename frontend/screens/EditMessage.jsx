@@ -5,6 +5,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
 import React from 'react';
 import Layout from './Layout';
@@ -34,12 +35,58 @@ export default function EditMessage() {
             EDIT MESSAGE
           </Text>
           <ScrollView nestedScrollEnabled={true} className="">
-            {/* //CUSTOMER DETAILS */}
-            <View className="bg-[#D9D9D9] w-[100%] h-[100%]">
+            <View
+              style={[{width: 275, height: 580}, styles.shadow]}
+              className="bg-[#D9D9D9] rounded-lg py-3 align-middle items-center space-y-2">
               <View>
-                <Text> Previous Message</Text>
-                <View></View>
+                <Text
+                  style={[
+                    {fontSize: wp(5)},
+                    {width: wp(60)},
+                    {height: hp(3.8)},
+                  ]}
+                  className="bg-[#D9D9D9]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
+                  Previous Message:
+                </Text>
+                <View
+                  style={[{width: wp(60), height: wp(50)}]}
+                  className="bg-white rounded-lg">
+                  <Text style={{fontSize: wp(4)}} className="p-3">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Sunt ex eligendi deleniti cumque, reiciendis assumenda?
+                    Nobis iusto alias repellendus eaque eius praesentium omnis
+                    commodi unde officia pariatur consequatur eligendi, maxime
+                  </Text>
+                </View>
               </View>
+              <View>
+                <Text
+                  style={[
+                    {fontSize: wp(5)},
+                    {width: wp(60)},
+                    {height: hp(3.8)},
+                  ]}
+                  className="bg-[#D9D9D9]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
+                  New Message:
+                </Text>
+                <View
+                  style={[{width: wp(60), height: wp(50)}]}
+                  className="bg-white rounded-lg">
+                  <TextInput
+                    style={{fontSize: wp(4)}}
+                    className="p-3"></TextInput>
+                </View>
+              </View>
+              <TouchableOpacity
+                style={[styles.shadow]}
+                onPress={() => navigation.navigate('EditUser')}
+                className=" bg-gray-900 flex text-center  top-[2%]  px-2 py-1 rounded-md border-2 border-gray-900">
+                <Text
+                  style={[{fontSize: wp(4)}]}
+                  className="font-bold text-[#D9D9D9] font-serif px-[10%] ">
+                  UPDATE MESSAGE
+                </Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </View>
@@ -52,11 +99,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Arial Rounded MT Bold',
   },
   shadow: {
-    shadowColor: '#00000',
+    shadowColor: '#000000', // Corrected color code
     shadowOffset: {width: 4, height: 4},
-    shadowOpacity: 0.8,
-    shadowRadius: 7,
-    elevation: 8,
+    shadowOpacity: 0.8, // Valid opacity value
+    shadowRadius: 9,
+    elevation: 8, // This will work on Android
   },
   glassEffect: {
     // Slightly decreased opacity for better clarity
