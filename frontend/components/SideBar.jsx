@@ -59,7 +59,7 @@ export default function SideBar() {
             <TouchableOpacity onPress={() => setToggle(true)}>
               <Image
                 style={{width: wp(9), height: wp(9)}}
-                source={require('../assets/icons/addUser.png')}
+                source={require('../assets/icons/allCustomers.png')}
               />
             </TouchableOpacity>
           </View>
@@ -80,7 +80,7 @@ export default function SideBar() {
             height: '100%',
             width: '55%',
           }}
-          className="absolute flex justify-start align-center items-start bg-[#151E25] py-16 px-3 space-y-[65]">
+          className="absolute flex justify-start align-center items-start bg-[#151E25] py-16 px-3 space-y-[39%]">
           <View className="flex justify-start items-center">
             <TouchableOpacity
               onPress={() => {

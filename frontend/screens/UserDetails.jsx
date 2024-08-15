@@ -12,7 +12,9 @@ export default function UserDetails() {
 
   return (
     <Layout>
-      <View className=" bg-[#D9D9D9] flex-1 justify-centr align-middle items-center h-[100%] w-[100%] px-6 rounded-lg ">
+      <View
+        style={{width: wp(77)}}
+        className=" bg-[#D9D9D9] flex-1  align-middle items-center   px-6 rounded-lg ">
         <Text
           style={[{fontSize: wp(8)}, styles.text, styles.shadow]}
           className="  mt-20 text-[#775948]">
@@ -74,7 +76,7 @@ export default function UserDetails() {
           className=" bg-gray-900 flex text-center top-10   px-2 py-1 rounded-md border-2 border-gray-900">
           <Text
             style={[{fontSize: wp(5)}]}
-            className="font-bold text-[#D9D9D9] font-serif px-[10%] ">
+            className="font-bold text-[#D9D9D9] font-serif px-[10%] text-center ">
             Edit Profile
           </Text>
         </TouchableOpacity>

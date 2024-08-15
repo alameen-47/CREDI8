@@ -18,7 +18,7 @@ export default function Layout({children}) {
           className="  absolute z-1 bottom-0 m-auto flex justify-center items-center align-middle w-screen h-screen "
           source={require('../assets/Background.png')}></ImageBackground>
         <View
-          style={{width: wp(77), height: wp(160)}}
+          style={{width: wp(77), height: wp(170)}}
           className=" z-2 absolute justify-center items-center align-middle text-center ml-[75] mt-4 rounded-lg">
           {children}
         </View>
