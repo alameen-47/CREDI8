@@ -43,6 +43,7 @@ export const register = async (req, res) => {
     res.status(201).send({
       success: true,
       message: 'User created successfully',
+      userId: user._id,
       user,
     });
   } catch (error) {
@@ -212,6 +213,93 @@ export const verifyOtp = async (req, res) => {
     res.status(500).send({
       success: false,
       message: 'Something went wrong!',
+      error,
+    });
+  }
+};
+export const updateProfileController = async (req, res) => {
+  try {
+    const {name, email, phoneNumber} = req.body;
+    const user = await userModel.findOne({email});
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: 'User not found, please check your email',
+      });
+    }
+    user.name = name;
+    user.email = email;
+    user.phoneNumber = phoneNumber;
+    await user.save();
+    res.status(200).send({
+      success: true,
+      message: 'Profile Updated Successfully',
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Something went wrong!',
+      error,
+    });
+  }
+};
+
+// Controller function to fetch all users
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await userModel.find(); // Fetch all users from the database
+
+    if (!users.length) {
+      return res.status(404).send({
+        success: false,
+        message: 'No users found',
+      });
+    }
+    const userData = users.map(user => ({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+    }));
+    res.status(200).send({
+      success: true,
+      message: 'Users fetched successfully',
+      users: userData,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error fetching users',
+      error,
+    });
+  }
+};
+
+// Controller function to fetch user data
+export const getUserData = async (req, res) => {
+  try {
+    const userId = req.params.id; // Get the user ID from the URL parameter
+    const users = await userModel.findById(userId).select('-password');
+
+    if (!users) {
+      return res.status(404).send({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    res.status(200).send({
+      success: true,
+      message: 'User data fetched successfully',
+      users,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error fetching user data',
       error,
     });
   }

@@ -14,13 +14,6 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 
-// import {styled} from 'nativewind';
-
-// const StyledView = styled(View);
-// const StyledText = styled(Text);
-// const StyledImage = styled(Image);
-// const StyledTouchableOpacity = styled(TouchableOpacity);
-
 const GetStartedScreen = () => {
   const navigation = useNavigation();
   const styles = StyleSheet.create({
@@ -60,11 +53,11 @@ const GetStartedScreen = () => {
 
         <TouchableOpacity
           style={[styles.shadow]}
-          onPress={() => navigation.navigate('HomeScreen')}
-          // onPress={() => navigation.navigate('SignUp')}
+          // onPress={() => navigation.navigate('HomeScreen')}
+          onPress={() => navigation.navigate('SignUp')}
           className="bottom-11 bg-gray-900 flex justify-center align-middle items-center text-center  mx-9 px-2 py-1 rounded-md border-2  border-gray-900">
           <Text
-            style={[{fontSize: wp(9)}]}
+            style={[{             fontSize: wp(9)}]}
             className="font-bold text-[#D9D9D9] font-serif ">
             GET STARTED
           </Text>

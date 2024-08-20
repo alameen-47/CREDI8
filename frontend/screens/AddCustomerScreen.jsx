@@ -117,11 +117,11 @@ export default function AddCustomerScreen() {
           <TouchableOpacity
             style={[styles.shadow]}
             onPress={() => navigation.navigate('EditUser')}
-            className="bg-gray-900 flex text-center top-10 px-2 py-1 rounded-md border-2 border-gray-900">
+            className=" bg-gray-900 flex text-center  top-[2%]  px-2 py-1 rounded-md border-2 border-gray-900">
             <Text
               style={[{fontSize: wp(4)}]}
-              className="font-bold text-[#D9D9D9] font-serif text-center flex px-2">
-              ADD CUSTOMER
+              className="font-bold text-[#D9D9D9] font-serif text-center ">
+              UPDATE MESSAGE
             </Text>
           </TouchableOpacity>
         </View>

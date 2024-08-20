@@ -1,15 +1,25 @@
 import {View, Text, TextInput, Image, TouchableOpacity} from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {useToast} from 'react-native-toast-notifications';
 import {useNavigation} from '@react-navigation/native';
+// import axios from 'axios';
 
-export default function Header() {
+export default function Header({userId}) {
   const navigation = useNavigation();
   const [drop, setDrop] = useState(1);
+
+  const navigateToUserDetails = () => {
+    if (userId) {
+      navigation.navigate('UserDetails', {id: userId});
+    } else {
+      console.error('User ID is not available');
+    }
+  };
+
   return (
     <View className="space-x-12  z-30 bg-[#151E25] flex justify-center items-center align-middle p-2 flex-row">
       <View>
@@ -44,7 +54,7 @@ export default function Header() {
             {/* //List items */}
             <View className="absolute top-[40px] w-[150px] p-3 justify-between space-y-5  bg-[#151E25] right-[-14] rounded-bl-xl ">
               <TouchableOpacity
-                onPress={() => navigation.navigate('UserDetails')}
+                onPress={navigateToUserDetails}
                 className="flex flex-row gap-x-3">
                 <Image
                   style={{width: wp(7), height: wp(7)}}

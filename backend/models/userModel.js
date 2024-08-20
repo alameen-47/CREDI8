@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-// import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema(
   {
@@ -9,7 +8,6 @@ const userSchema = new mongoose.Schema(
     phone: {type: String, required: true},
     otp: {type: String},
     otpExpires: {type: Date},
-
   },
   {timestamps: true},
 );

@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import Layout from './Layout';
 import {
   widthPercentageToDP as wp,
@@ -15,6 +15,28 @@ import {useNavigation} from '@react-navigation/native';
 
 export default function EditUser() {
   const navigation = useNavigation();
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+
+  const handleSubmit = async () => {
+    try {
+      const res = await api.post('/api/v1/auth/update-profile', {
+        name,
+        email,
+        // password,
+        phone,
+      });
+      if (res && res.data.success) {
+        toast.show('Updated Successfully!!!');
+        navigation.navigate('UserDetails');
+      } else {
+        alert('Error', res.data.message);
+      }
+    } catch (error) {
+      toast.show(`Something went wrong!! ${error.message}`);
+    }
+  };
 
   return (
     <Layout>
@@ -33,6 +55,7 @@ export default function EditUser() {
             </Text>
             <TextInput
               placeholder="Enter User Name"
+              onChangeText={setName}
               className=" text-black bg-white w-[100%] px-2 rounded-lg  p-1"></TextInput>
           </View>
           <View className="mb-5 flex-col justify-center align-middle  gap-2">
@@ -43,6 +66,7 @@ export default function EditUser() {
             </Text>
             <TextInput
               placeholder="Enter Email Address"
+              onChangeText={setEmail}
               className=" text-black bg-white w-[100%] px-2 rounded-lg  p-1"></TextInput>
           </View>
           <View className="mb-5 flex-col justify-center align-middle  gap-2">
@@ -52,10 +76,11 @@ export default function EditUser() {
               Whatsapp:
             </Text>
             <TextInput
+              onChangeText={setPhone}
               placeholder="Enter Whatsapp Number"
               className=" text-black bg-white w-[100%] px-2 rounded-lg  p-1"></TextInput>
           </View>
-          <View className="mb-5 flex-col justify-center align-middle  gap-2">
+          {/* <View className="mb-5 flex-col justify-center align-middle  gap-2">
             <Text
               style={[{fontSize: wp(4)}, styles.text, styles.shadow]}
               className="text-[#775948] ">
@@ -64,11 +89,11 @@ export default function EditUser() {
             <TextInput
               placeholder="Enter Mobile Number"
               className=" text-black bg-white w-[100%] px-2 rounded-lg  p-1"></TextInput>
-          </View>
+          </View> */}
         </View>
         <TouchableOpacity
           style={[styles.shadow]}
-          onPress={() => navigation.navigate('EditUser')}
+          onPress={handleSubmit}
           className=" bg-gray-900 flex text-center top-10   px-2 py-1 rounded-md border-2 border-gray-900">
           <Text
             style={[{fontSize: wp(4)}]}
