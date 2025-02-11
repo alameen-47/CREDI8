@@ -21,11 +21,13 @@ export default function Header() {
   const navigation = useNavigation();
   const [drop, setDrop] = useState(1);
   const {removeAuthData} = useContext(AuthContext);
-  const [inputValue, setInputValue] = useState('');
   const {query, results, loading, handleSearch} = useSearch();
+  const [inputValue, setInputValue] = useState('');
+  // const [isListVisible, setIsListVisible] = useState(false); // To track visibility of FlatList
 
   const handleSelectedCustomer = item => {
-    handleSearch({query: '', results: []});
+    handleSearch({query: ''});
+    // setIsListVisible(false);
     navigation.navigate('EditCustomer', {customer: item});
   };
 
@@ -63,7 +65,7 @@ export default function Header() {
           placeholderTextColor="gray"></TextInput>
 
         {loading && <ActivityIndicator size="small" color="#0000ff" />}
-        {results && results.length > 0 ? (
+        {query.length > 0 ? (
           <FlatList
             className="absolute top-[150%] bg-[#151E25] text-white p-2 rounded-b-md"
             data={results}
