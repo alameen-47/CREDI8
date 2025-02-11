@@ -14,25 +14,53 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import {useNavigation} from '@react-navigation/native';
+import {useToast} from 'react-native-toast-notifications';
+import api from '../../backend/api/api';
 
 export default function AddCustomerScreen() {
-  const [date, setDate] = useState(new Date());
+  const navigation = useNavigation();
+  const [custDueDate, setCustDueDate] = useState(new Date());
   const [show, setShow] = useState(false);
+  const [custName, setCustName] = useState('');
+  const [custNumber, setCustNumber] = useState('');
+  const [custAmount, setCustAmount] = useState('');
+  const toast = useToast();
+
+  const handleSubmit = async () => {
+    console.log('AddCustomer Function called');
+
+    try {
+      // const res = await api.post('/api/v1/customer/add-customer');
+      const res = await api.post('/api/v1/customer/add-customer', {
+        custName,
+        custNumber,
+        custAmount,
+        custDueDate,
+      });
+      if (res && res.data.success) {
+        toast.show('Customer Added Succesfully');
+        navigation.navigate('CustomerList');
+      }
+    } catch (error) {
+      toast.show(`Something went wrong!! ${error.message}`);
+    }
+  };
 
   const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
+    const currentDate = selectedDate || custDueDate;
     setShow(Platform.OS === 'ios');
-    setDate(currentDate);
+    setCustDueDate(currentDate);
   };
 
   const showDatepicker = () => {
     setShow(true);
   };
 
-  const formatDate = date => {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
+  const formatDate = custDueDate => {
+    const day = custDueDate.getDate().toString().padStart(2, '0');
+    const month = (custDueDate.getMonth() + 1).toString().padStart(2, '0');
+    const year = custDueDate.getFullYear();
     return `${day}/${month}/${year}`;
   };
 
@@ -62,6 +90,8 @@ export default function AddCustomerScreen() {
                 Name:
               </Text>
               <TextInput
+                value={custName}
+                onChangeText={custName => setCustName(custName)}
                 placeholder="Enter Customer Name"
                 className="text-black bg-white w-[100%] px-2 rounded-lg p-1"></TextInput>
             </View>
@@ -72,6 +102,9 @@ export default function AddCustomerScreen() {
                 Number:
               </Text>
               <TextInput
+                value={custNumber}
+                maxLength={10}
+                onChangeText={custNumber => setCustNumber(custNumber)}
                 placeholder="Enter Customer Mobile Number"
                 className="text-black bg-white w-[100%] px-2 rounded-lg p-1"></TextInput>
             </View>
@@ -82,6 +115,8 @@ export default function AddCustomerScreen() {
                 Amount:
               </Text>
               <TextInput
+                value={custAmount}
+                onChangeText={custAmount => setCustAmount(custAmount)}
                 placeholder="Enter Amount"
                 className="text-black bg-white w-[100%] px-2 rounded-lg p-1"></TextInput>
             </View>
@@ -99,14 +134,14 @@ export default function AddCustomerScreen() {
                 <Text>
                   Click To Select Due Date:{'\n'}
                   <Text className="font-bold">
-                    Selected Due Date: {formatDate(date)}
+                    Selected Due Date: {formatDate(custDueDate)}
                   </Text>
                 </Text>
               </TouchableOpacity>
               {show && (
                 <DateTimePicker
                   testID="dateTimePicker"
-                  value={date}
+                  value={custDueDate}
                   mode="date"
                   display="default"
                   onChange={onChange}
@@ -116,12 +151,12 @@ export default function AddCustomerScreen() {
           </View>
           <TouchableOpacity
             style={[styles.shadow]}
-            onPress={() => navigation.navigate('EditUser')}
+            onPress={handleSubmit}
             className=" bg-gray-900 flex text-center  top-[2%]  px-2 py-1 rounded-md border-2 border-gray-900">
             <Text
               style={[{fontSize: wp(4)}]}
               className="font-bold text-[#D9D9D9] font-serif text-center ">
-              UPDATE MESSAGE
+              Add Customer
             </Text>
           </TouchableOpacity>
         </View>

@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 
 const customerSchema = new mongoose.Schema({
-  name: {type: String, required: true},
-  amount: {type: Number, required: true, minlength: 1},
-  whatsappNumber: {type: String, required: true},
-  dueDate: {type: Date, required: true},
+  custName: {type: String, required: true},
+  custAmount: {type: Number, required: true, minlength: 1},
+  custNumber: {type: Number, required: true, maxlength: 10},
+  custDueDate: {type: Date, required: true},
 });
 
-module.exports = mongoose.model('Customer', customerSchema);
+export default mongoose.model('customers', customerSchema);

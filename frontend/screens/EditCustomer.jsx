@@ -17,28 +17,31 @@ import {
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
 
-export default function EditCustomer() {
-  const [date, setDate] = useState(new Date());
+export default function EditCustomer({route}) {
+  const {customer} = route.params;
+  const [custName, setCustName] = useState(customer.custName);
+  const [custNumber, setCustNumber] = useState(customer.custNumber);
+  const [custAmount, setCustAmount] = useState(customer.custAmount);
+  const [custDueDate, setCustDueDate] = useState(customer.custDueDate);
   const [show, setShow] = useState(false);
-  const [search, setSearch] = useState('');
-  const [filteredUsers, setFilteredUsers] = useState(users);
-  const [selectedValue, setSelectedValue] = useState('');
-  const [showList, setShowList] = useState(false);
 
   const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
+    const currentDate = selectedDate || customer.custDueDate;
     setShow(Platform.OS === 'ios');
-    setDate(currentDate);
+    setCustDueDate(prev => ({
+      ...prev,
+      custDueDate: currentDate, // Update the due date in the state
+    }));
   };
   const showDatepicker = () => {
     setShow(true);
   };
-  const formatDate = date => {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
+  // const formatDate = custDueDate => {
+  //   const day = custDueDate.getDate().toString().padStart(2, '0');
+  //   const month = (custDueDate.getMonth() + 1).toString().padStart(2, '0');
+  //   const year = custDueDate.getFullYear();
+  //   return `${day}/${month}/${year}`;
+  // };
 
   const users = [
     {name: 'Micle', value: 'Micle'},
@@ -47,29 +50,6 @@ export default function EditCustomer() {
     {name: 'Klein', value: 'Klein'},
     // Add more users here
   ];
-  useEffect(() => {
-    setFilteredUsers(
-      users.filter(user =>
-        user.name.toLowerCase().includes(search.toLowerCase()),
-      ),
-    );
-  }, [search]);
-
-  const handleSelectItem = value => {
-    setSelectedValue(value);
-    setShowList(false);
-    console.log(selectedValue);
-  };
-
-  const handleBlur = () => {
-    setShowList(false);
-  };
-
-  const handleKeyPress = e => {
-    if (e.nativeEvent.key === 'Enter') {
-      setShowList(false);
-    }
-  };
 
   return (
     <Layout>
@@ -91,32 +71,19 @@ export default function EditCustomer() {
               EDIT CUSTOMER DETAILS
             </Text>
             <View className="mt-8 w-[100%]">
-              <View className=" justify-around gap-1">
-                <TextInput
-                  className="bg-[#F5DEB3] rounded-lg h-9 w-auto"
-                  placeholder="Search Customer..."
-                  onChangeText={text => {
-                    setSearch(text);
-                    setSelectedValue(text); // Update selectedValue immediately
-                  }}
-                  value={search}
-                  onFocus={() => setShowList(true)}
-                  onBlur={handleBlur}
-                  onKeyPress={handleKeyPress}
-                />
-                <Text
-                  className="bg-[#F5DEB3] rounded-lg px-2  font-medium "
-                  style={{fontSize: 15}}>
-                  Selected: {selectedValue}
-                </Text>
-              </View>
               <View className="mb-5 flex-col justify-center align-middle ">
                 <Text
                   style={[{fontSize: wp(4)}, styles.Text, styles.shadow]}
                   className="text-[#F4F1D6] ">
                   Name:
                 </Text>
+                <Text className=" text-black bg-[#F5DEB3]  w-auto px-2 rounded-lg  p-1">
+                  Previous Name: {customer.custName}
+                </Text>
                 <TextInput
+                  name="custName"
+                  value={customer.custNumber}
+                  onChange={text => setCustName(text)}
                   placeholder="Enter Customer Name"
                   className=" text-black bg-white w-auto px-2 rounded-lg  p-1"></TextInput>
               </View>
@@ -126,8 +93,17 @@ export default function EditCustomer() {
                   className="text-[#F4F1D6] ">
                   Number:
                 </Text>
+                <Text className=" text-black bg-[#F5DEB3]  w-auto px-2 rounded-lg  p-1">
+                  Previous Number: {customer.custNumber}
+                </Text>
                 <TextInput
-                  placeholder="Enter Customer Mobile Number"
+                  name="custNumber"
+                  value={customer.custNumber}
+                  onChange={text => {
+                    setCustNumber(text);
+                  }}
+                  maxLength={10}
+                  // placeholder="Enter Customer Mobile Number"
                   className=" text-black bg-white w-auto px-2 rounded-lg  p-1"></TextInput>
               </View>
               <View className="mb-5 flex-col justify-center align-middle  gap-1">
@@ -137,9 +113,12 @@ export default function EditCustomer() {
                   Amount:
                 </Text>
                 <Text className=" text-black bg-[#F5DEB3]  w-auto px-2 rounded-lg  p-1">
-                  Previous Amount: 322 SAR
+                  Previous Amount: {customer.custAmount} SAR
                 </Text>
                 <TextInput
+                  name="custAmount"
+                  value={customer.custAmount}
+                  onChange={text => setCustAmount(text)}
                   placeholder="Enter Amount"
                   className="  bg-white w-auto px-2 rounded-lg  p-1"></TextInput>
               </View>
@@ -152,7 +131,7 @@ export default function EditCustomer() {
                 <Text className=" text-black bg-[#F5DEB3]  w-auto px-2 rounded-lg  p-1">
                   Previous Due Date: 22/3/2023
                 </Text>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   onPress={showDatepicker}
                   title="Show date picker!"
                   placeholder="Enter Mobile Number"
@@ -160,19 +139,19 @@ export default function EditCustomer() {
                   <Text>
                     Click To Select Due Date:{'\n'}
                     <Text className="font-bold">
-                      New Due Date : {formatDate(date)}
+                      New Due Date : {formatDate(customer.custDueDate)}
                     </Text>
                   </Text>
                 </TouchableOpacity>
                 {show && (
                   <DateTimePicker
                     testID="dateTimePicker"
-                    value={date}
+                    value={customer.custDueDate}
                     mode="date"
                     display="default"
                     onChange={onChange}
                   />
-                )}
+                )} */}
               </View>
             </View>
             <TouchableOpacity

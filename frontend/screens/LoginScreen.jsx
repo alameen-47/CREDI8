@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TextInput,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -16,12 +16,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import {useToast} from 'react-native-toast-notifications';
 import api from '../../backend/api/api';
+import {AuthContext} from '../../backend/context/auth';
 
 export default function LoginScreen() {
   const toast = useToast();
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const {saveAuthData} = useContext(AuthContext);
 
   const handleSubmit = async () => {
     try {
@@ -30,6 +32,9 @@ export default function LoginScreen() {
         password,
       });
       if (res && res.data.success) {
+        const {user, token} = res.data; // Assuming the response has user and token
+        saveAuthData(user, token); // Call the saveAuthData function from context
+
         toast.show('Login Successfull!!!');
         navigation.navigate('HomeScreen');
       } else {

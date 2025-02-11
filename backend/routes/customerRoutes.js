@@ -1,11 +1,20 @@
-const express = require('express');
-const {
-  addCustomer,
-  getCustomers,
-} = require('../controllers/customerController');
+import express from 'express';
+import {
+  AddCustomer,
+  EditCustomer,
+  SearchController,
+} from '../controllers/customerController.js';
+import customerModel from '../models/customerModel.js';
+
 const router = express.Router();
 
-router.post('/add', addCustomer);
-router.get('/list', getCustomers);
+//CUSTOMER config
 
-module.exports = router;
+router.post('/add-customer', AddCustomer);
+
+router.put('/edit-customer', EditCustomer);
+
+// Route to handle search requests
+router.get('/search', SearchController);
+
+export default router;

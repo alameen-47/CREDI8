@@ -1,25 +1,42 @@
-import {View, Text, TextInput, Image, TouchableOpacity} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import {useToast} from 'react-native-toast-notifications';
 import {useNavigation} from '@react-navigation/native';
-// import axios from 'axios';
+import {useSearch} from '../../backend/context/search.js';
+import {AuthContext} from '../../backend/context/auth.js';
+import debounce from 'lodash.debounce'; // Use lodash debounce for better optimization
 
-export default function Header({userId}) {
+export default function Header() {
   const navigation = useNavigation();
   const [drop, setDrop] = useState(1);
+  const {removeAuthData} = useContext(AuthContext);
+  const [inputValue, setInputValue] = useState(query);
+  const {query, results, loading, handleSearch} = useSearch();
 
-  const navigateToUserDetails = () => {
-    if (userId) {
-      navigation.navigate('UserDetails', {id: userId});
-    } else {
-      console.error('User ID is not available');
-    }
+  const handleSelectedCustomer = item => {
+    handleSearch({query: '', results: []});
+    navigation.navigate('EditCustomer', {customer: item});
   };
-
+  useEffect(() => {
+    setInputValue(query); // Sync local state with context when query updates externally
+  }, [query]);
+  const debouncedSearch = useCallback(
+    debounce(text => {
+      handleSearch(text);
+    }, 500),
+    [handleSearch],
+  );
   return (
     <View className="space-x-12  z-30 bg-[#151E25] flex justify-center items-center align-middle p-2 flex-row">
       <View>
@@ -28,12 +45,38 @@ export default function Header({userId}) {
           source={require('../assets/icons/Logo-small.png')}
         />
       </View>
-      <View className="search-Bar bg-white w-[50%] rounded-3xl ">
+
+      <View className="search-Bar bg-white w-[50%] rounded-3xl p-2 flex-row items-center">
         <TextInput
-          className=" text-black  align-middle items-center h-9 pl-4 justify-center "
+          className="text-black flex-1 h-10 pl-4"
           style={[{fontSize: wp(3.5)}]}
-          placeholder="Search..."
-          placeholder-gray-100></TextInput>
+          value={inputValue}
+          onChangeText={text => {
+            setInputValue(text);
+            debouncedSearch(text);
+          }}
+          placeholder="Search customer..."
+          placeholderTextColor="gray"></TextInput>
+
+        {loading && <ActivityIndicator size="small" color="#0000ff" />}
+        {results && results.length > 0 ? (
+          <FlatList
+            className="absolute top-[150%] bg-[#151E25] text-white p-2 rounded-b-md"
+            data={results}
+            keyExtractor={item => item._id}
+            renderItem={({item}) => (
+              <TouchableOpacity onPress={() => handleSelectedCustomer(item)}>
+                <Text className="text-white mt-2 text-lg">{item.custName}</Text>
+                <Text className="text-white flex-row items-center">
+                  {item.custNumber}
+                </Text>
+              </TouchableOpacity>
+            )}
+          />
+        ) : (
+          // If no results, show nothing or a message (optional)
+          <Text></Text>
+        )}
       </View>
       <View>
         {drop === 1 ? (
@@ -76,7 +119,10 @@ export default function Header({userId}) {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate('LogIn')}
+                onPress={async () => {
+                  await removeAuthData(); // Remove auth data
+                  navigation.navigate('LogIn'); // Navigate to LogIn screen
+                }}
                 className="flex flex-row gap-x-3">
                 <Image
                   style={{width: wp(7), height: wp(7)}}

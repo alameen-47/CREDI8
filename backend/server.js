@@ -3,6 +3,7 @@ import connectDB from './config/db.js';
 import colors from 'colors';
 import morgan from 'morgan';
 import authRoutes from './routes/authRoutes.js ';
+import customerRoutes from './routes/customerRoutes.js';
 import express from 'express';
 import cors from 'cors';
 
@@ -24,6 +25,7 @@ const PORT = process.env.PORT || 8086;
 
 //routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/customer',customerRoutes);
 
 //rest api
 app.get('/', (req, res) => {

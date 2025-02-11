@@ -3,55 +3,64 @@ import {comparePassword, hashPassword} from '../helpers/authHelper.js';
 import userModel from '../models/userModel.js';
 import JWT from 'jsonwebtoken';
 import otpGenerator from 'otp-generator';
-import nodemailer from 'nodemailer';
+// import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-
+import bcrypt from 'bcrypt';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 dotenv.config(); // Load environment variables
 
-import bcrypt from 'bcrypt';
 export const register = async (req, res) => {
+  console.log('Register function called');
   try {
+    // Extract user data from the request body
     const {name, email, password, phone} = req.body;
 
-    //validation
+    // Validation: Check if all required fields are provided
     if (!name || !email || !password || !phone) {
-      return res.status(400).send({message: 'Please fill in all fields'});
+      return res.status(400).send({message: 'Please fill in all fields'}); // Return error if any field is missing
     }
 
-    //check user
+    // Check if a user with the same email already exists in the database
     const ExistingUser = await userModel.findOne({email});
 
-    //existing user
+    // If the user already exists, return an error response
     if (ExistingUser) {
       return res.status(400).send({
         success: true,
-        message: 'Email already exists,Please login',
+        message: 'Email already exists, Please login',
       });
     }
 
-    //register user
+    // Hash the user's password for security
     const hashedPassword = await hashPassword(password);
 
-    //save
+    // Create a new user instance with the provided data and hashed password
     const user = new userModel({
       name,
       email,
       password: hashedPassword,
       phone,
     });
+
+    // Save the new user to the database
     await user.save();
+
+    // Respond with success and user details
     res.status(201).send({
       success: true,
       message: 'User created successfully',
-      userId: user._id,
-      user,
+      userId: user._id, // Return the user's unique ID
+      user, // Return the user object (excluding sensitive information like the hashed password)
     });
   } catch (error) {
+    // Log the error to the console for debugging
     console.error(error);
+
+    // Send a server error response
     res.status(500).send({
-      succes: false,
+      success: false,
       message: 'Error in Registration',
-      error,
+      error, // Include the error for more detailed debugging
     });
   }
 };
@@ -99,6 +108,10 @@ export const login = async (req, res) => {
       },
       token,
     });
+    if (res.data) {
+      await AsyncStorage.setItem('user', JSON.stringify(res.data)); // Save user data
+      console.log('User logged in and stored:', res.data);
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send({
@@ -108,6 +121,7 @@ export const login = async (req, res) => {
     });
   }
 };
+
 //forgotPasswordController
 export const forgotPassword = async (req, res) => {
   try {
@@ -217,6 +231,7 @@ export const verifyOtp = async (req, res) => {
     });
   }
 };
+
 export const updateProfileController = async (req, res) => {
   try {
     const {name, email, phoneNumber} = req.body;

@@ -27,6 +27,8 @@ export default function SignUpScreen() {
   const toast = useToast();
 
   const handleSubmit = async () => {
+    console.log('Sign Up button pressed');
+
     try {
       const res = await api.post('/api/v1/auth/register', {
         name,
