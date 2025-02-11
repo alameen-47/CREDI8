@@ -9,6 +9,8 @@ export const SearchProvider = ({children}) => {
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async text => {
+    // console.log('4444444444444444444444 Search query: ', text); // This should print just the string, not an object
+
     setQuery(text);
     setLoading(true);
 
@@ -19,7 +21,7 @@ export const SearchProvider = ({children}) => {
     }
     try {
       const res = await api.get(`/api/v1/customer/search?query=${text}`);
-      console.log('Search results:', res.data);
+      // console.log('Search results:', res.data);
       setResults(res.data);
     } catch (error) {
       console.log('Error Fetching Customers : ', error);

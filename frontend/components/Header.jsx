@@ -21,22 +21,26 @@ export default function Header() {
   const navigation = useNavigation();
   const [drop, setDrop] = useState(1);
   const {removeAuthData} = useContext(AuthContext);
-  const [inputValue, setInputValue] = useState(query);
+  const [inputValue, setInputValue] = useState('');
   const {query, results, loading, handleSearch} = useSearch();
 
   const handleSelectedCustomer = item => {
     handleSearch({query: '', results: []});
     navigation.navigate('EditCustomer', {customer: item});
   };
+
   useEffect(() => {
-    setInputValue(query); // Sync local state with context when query updates externally
+    setInputValue(query);
   }, [query]);
+
   const debouncedSearch = useCallback(
     debounce(text => {
+      // console.log('&&&&&&&&&&&', text, '&&&&&&&&&&&');
       handleSearch(text);
     }, 500),
     [handleSearch],
   );
+
   return (
     <View className="space-x-12  z-30 bg-[#151E25] flex justify-center items-center align-middle p-2 flex-row">
       <View>
