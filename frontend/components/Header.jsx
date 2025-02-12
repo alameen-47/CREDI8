@@ -23,11 +23,9 @@ export default function Header() {
   const {removeAuthData} = useContext(AuthContext);
   const {query, results, loading, handleSearch} = useSearch();
   const [inputValue, setInputValue] = useState('');
-  // const [isListVisible, setIsListVisible] = useState(false); // To track visibility of FlatList
 
   const handleSelectedCustomer = item => {
     handleSearch({query: ''});
-    // setIsListVisible(false);
     navigation.navigate('EditCustomer', {customer: item});
   };
 

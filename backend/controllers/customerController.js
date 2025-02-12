@@ -39,6 +39,7 @@ export const AddCustomer = async (req, res) => {
     if (!custName || !custNumber || !custAmount || !custDueDate) {
       return res.status(400).json({message: 'Please fill in all fields.'});
     }
+    // Ensure custDueDate is in the YYYY-MM-DD format before saving
     const ExistingCustomer = await customerModel.findOne({
       custName,
       custNumber,
@@ -68,27 +69,82 @@ export const AddCustomer = async (req, res) => {
   }
 };
 
+// export const EditCustomer = async (req, res) => {
+//   try {
+//     const {_id, custName, custNumber, custAmount, custDueDate} = req.body;
+//     const customer = await customerModel.findByIdAndUpdate(_id); // Search by ID
+
+//     if (!customer) {
+//       return res.status(404).json({
+//         success: false,
+//         message: 'Customer not found with the given criteria',
+//       });
+//     }
+//     if (custName) customer.custName = custName;
+//     if (custAmount) customer.custAmount = custAmount;
+//     if (custDueDate) customer.custDueDate = custDueDate;
+//     if (custNumber) customer.custNumber = custNumber;
+
+//     //save the updated customer document
+//     const updatedCustomer = await customer.save();
+//     res.status(200).send({
+//       success: true,
+//       message: 'Customer Updated Successfully',
+//       customer: updatedCustomer, // Return the updated customer
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send({
+//       success: false,
+//       message: 'Error in Editing Customer Details',
+//       error,
+//     });
+//   }
+// };
+
 export const EditCustomer = async (req, res) => {
   try {
-    const {custName, custNumber, custAmount, custDueDate} = req.body;
-    const customer = await customerModel.findOne({
-      _id: id, // Search by ID
-      custName, // Match customer name
-      custNumber, // Match customer number
-    });
-    if (!customer) {
-      return res
-        .status(404)
-        .json({message: 'Customer not found with the given criteria'});
+    const {_id, custAmount, custName, custDueDate, custNumber} = req.body;
+
+    if (!_id) {
+      return res.status(404).send({
+        success: false,
+        message: 'No Customer Details Found in this criteria',
+      });
     }
-    customer.custName = custName;
-    customer.custAmount = custAmount;
-    customer.custDueDate = custDueDate;
+    const updatedCustomer = await customerModel.findByIdAndUpdate(
+      _id,
+      {
+        custName,
+        custAmount,
+        custNumber,
+        custDueDate,
+      },
+      {new: true, runValidators: true},
+    );
+
+    if (!updatedCustomer) {
+      return res.status(404).send({
+        success: false,
+        message: 'No Customer Fount in this ID',
+      });
+    }
+
+    // if (custName) customer.custName = custName;
+    // if (custAmount) customer.custAmount = custAmount;
+    // if (custNumber) customer.custNumber = custNumber;
+    // if (custDueDate) customer.custDueDate = custDueDate;
+
+    res.status(200).send({
+      success: true,
+      message: 'Customer Details Updated Succesfully',
+      customer: updatedCustomer,
+    });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
+    res.status(404).send({
       success: false,
-      message: 'Error in Editing Customer Details',
+      message: 'Error While Updating Cusomer Details',
       error,
     });
   }

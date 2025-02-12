@@ -16,40 +16,80 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
+import api from '../../backend/api/api';
+import {useToast} from 'react-native-toast-notifications';
+import {useNavigation} from '@react-navigation/native';
 
 export default function EditCustomer({route}) {
+  const navigation = useNavigation();
   const {customer} = route.params;
   const [custName, setCustName] = useState(customer.custName);
   const [custNumber, setCustNumber] = useState(customer.custNumber);
   const [custAmount, setCustAmount] = useState(customer.custAmount);
   const [custDueDate, setCustDueDate] = useState(customer.custDueDate);
   const [show, setShow] = useState(false);
+  const [previousDueDate, setPreviousDueDate] = useState();
+  const toast = useToast();
 
+  const handleSubmit = async () => {
+    try {
+      const updatedFields = {_id: customer._id};
+
+      if (custName !== customer.custName) updatedFields.custName = custName;
+      if (custNumber !== customer.custNumber)
+        updatedFields.custNumber = custNumber;
+      if (custAmount !== customer.custAmount)
+        updatedFields.custAmount = custAmount;
+      if (custDueDate !== customer.custDueDate)
+        updatedFields.custDueDate = custDueDate;
+
+      if (Object.keys(updatedFields).length === 1) {
+        toast.show('No Changes Made !!!');
+        return;
+      }
+      console.log('**************Editing DATA************', updatedFields);
+      const res = await api.put(
+        '/api/v1/customer/edit-customer',
+        updatedFields,
+      );
+      if (res && res.data.success) {
+        toast.show('Customer Details Updated Succesfully');
+        navigation.navigate('HomeScreen');
+      }
+    } catch (error) {
+      toast.show(`Somethig went wrong!! ${error.message}`);
+    }
+  };
+
+  const previousDueDAte = () => {
+    setPreviousDueDate(
+      customer && custDueDate.split('T')[0].split('-').reverse().join('-'),
+    );
+  };
+
+  useEffect(() => {
+    previousDueDAte();
+  }, []);
   const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || customer.custDueDate;
-    setShow(Platform.OS === 'ios');
-    setCustDueDate(prev => ({
-      ...prev,
-      custDueDate: currentDate, // Update the due date in the state
-    }));
+    if (selectedDate) {
+      setCustDueDate(selectedDate);
+    }
+    setShow(false);
   };
   const showDatepicker = () => {
     setShow(true);
   };
-  // const formatDate = custDueDate => {
-  //   const day = custDueDate.getDate().toString().padStart(2, '0');
-  //   const month = (custDueDate.getMonth() + 1).toString().padStart(2, '0');
-  //   const year = custDueDate.getFullYear();
-  //   return `${day}/${month}/${year}`;
-  // };
+  const formatDate = custDueDate => {
+    if (!custDueDate) return 'Select a Date';
+    const date = new Date(custDueDate);
 
-  const users = [
-    {name: 'Micle', value: 'Micle'},
-    {name: 'Adam', value: 'Adam'},
-    {name: 'Mark', value: 'Mark'},
-    {name: 'Klein', value: 'Klein'},
-    // Add more users here
-  ];
+    if (isNaN(date.getTime())) return 'Invalid Date!!';
+
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   return (
     <Layout>
@@ -71,7 +111,7 @@ export default function EditCustomer({route}) {
               EDIT CUSTOMER DETAILS
             </Text>
             <View className="mt-8 w-[100%]">
-              <View className="mb-5 flex-col justify-center align-middle ">
+              <View className="mb-5 flex-col justify-center align-middle  gap-1">
                 <Text
                   style={[{fontSize: wp(4)}, styles.Text, styles.shadow]}
                   className="text-[#F4F1D6] ">
@@ -83,11 +123,11 @@ export default function EditCustomer({route}) {
                 <TextInput
                   name="custName"
                   value={customer.custNumber}
-                  onChange={text => setCustName(text)}
+                  onChangeText={text => setCustName(text)}
                   placeholder="Enter Customer Name"
                   className=" text-black bg-white w-auto px-2 rounded-lg  p-1"></TextInput>
               </View>
-              <View className="mb-5 flex-col justify-center align-middle  gap-2">
+              <View className="mb-5 flex-col justify-center align-middle  gap-1">
                 <Text
                   style={[{fontSize: wp(4)}, styles.Text, styles.shadow]}
                   className="text-[#F4F1D6] ">
@@ -97,9 +137,10 @@ export default function EditCustomer({route}) {
                   Previous Number: {customer.custNumber}
                 </Text>
                 <TextInput
+                  placeholder="Enter New Number "
                   name="custNumber"
                   value={customer.custNumber}
-                  onChange={text => {
+                  onChangeText={text => {
                     setCustNumber(text);
                   }}
                   maxLength={10}
@@ -118,7 +159,7 @@ export default function EditCustomer({route}) {
                 <TextInput
                   name="custAmount"
                   value={customer.custAmount}
-                  onChange={text => setCustAmount(text)}
+                  onChangeText={text => setCustAmount(text)}
                   placeholder="Enter Amount"
                   className="  bg-white w-auto px-2 rounded-lg  p-1"></TextInput>
               </View>
@@ -129,9 +170,9 @@ export default function EditCustomer({route}) {
                   Due Date:
                 </Text>
                 <Text className=" text-black bg-[#F5DEB3]  w-auto px-2 rounded-lg  p-1">
-                  Previous Due Date: 22/3/2023
+                  Previous Due Date: {previousDueDate}
                 </Text>
-                {/* <TouchableOpacity
+                <TouchableOpacity
                   onPress={showDatepicker}
                   title="Show date picker!"
                   placeholder="Enter Mobile Number"
@@ -139,24 +180,26 @@ export default function EditCustomer({route}) {
                   <Text>
                     Click To Select Due Date:{'\n'}
                     <Text className="font-bold">
-                      New Due Date : {formatDate(customer.custDueDate)}
+                      {custDueDate
+                        ? `New Due Date: ${formatDate(custDueDate)}`
+                        : 'Select a date'}
                     </Text>
                   </Text>
                 </TouchableOpacity>
                 {show && (
                   <DateTimePicker
-                    testID="dateTimePicker"
-                    value={customer.custDueDate}
+                    value={custDueDate ? new Date(custDueDate) : new Date()} // Ensure it's a valid Date object
                     mode="date"
                     display="default"
                     onChange={onChange}
                   />
-                )} */}
+                )}
               </View>
             </View>
             <TouchableOpacity
               style={[styles.shadow]}
-              onPress={() => navigation.navigate('EditUser')}
+              // onPress={() => navigation.navigate('EditUser')}
+              onPress={handleSubmit}
               className=" bg-gray-900 flex text-center px-2 py-1 rounded-md border-2 border-gray-900">
               <Text
                 style={[{fontSize: wp(4)}]}
