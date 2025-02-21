@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Layout from './Layout';
@@ -25,14 +26,23 @@ export default function AllCustomers() {
   const navigation = useNavigation();
   const [customers, setCustomers] = useState('');
   const [allcustomers, setAllCustomers] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchAllCustomers = async () => {
-    const res = await api.get('/api/v1/customer/all-customers');
-    setCustomers(res.data);
-    setAllCustomers(res.data);
-    console.log('11111111111111111111111', customers, '11111111111111111');
+    try {
+      setRefreshing(true); // Show loading
+      const res = await api.get('/api/v1/customer/all-customers');
+      setCustomers(res.data);
+      setAllCustomers(res.data);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to Fetch Customers');
+    } finally {
+      setRefreshing(false);
+    }
   };
-
+  const onRefresh = () => {
+    fetchAllCustomers();
+  };
   useEffect(() => {
     if (query.trim() === '') {
       setCustomers(allcustomers);
@@ -111,95 +121,99 @@ export default function AllCustomers() {
           <Text className="m-auto text-[#F4F1D6] text-[18px] font-semibold">
             Total Customers: {customers.length}
           </Text>
-
-          <SwipeListView
-            data={customers}
-            keyExtractor={item => item._id}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                key={item._id}
-                onPress={() => handleSelectedCustomer(item)}>
-                <View className="bg-[#D9D9D9] w-[100%] h-[65] rounded-xl mb-2 px-3">
-                  <View className="absolute p-[2%] flex justify-between flex-row gap-1 ">
-                    <View className="flex">
-                      <Text
-                        style={[
-                          {fontSize: wp(5)},
-                          {width: wp(40)},
-                          {height: hp(2.8)},
-                        ]}
-                        className="bg-[#D9D9D9]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
-                        {item.custName}
-                      </Text>
-                      <View className="flex  flex-row w-[170]">
-                        <View className="bg-[#D9D9D9]  w-[100%]  rounded-xl pl-3 ">
-                          <Text
-                            style={[{fontSize: wp(2.5)}]}
-                            className="font-bold text-[#775948] ">
-                            Whatsapp Number:
-                          </Text>
-                          <Text
-                            style={[{fontSize: wp(3)}]}
-                            className="font-bold text-[#775948 ">
-                            {item.custNumber}
-                          </Text>
+          <ScrollView
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
+            <SwipeListView
+              data={customers}
+              keyExtractor={item => item._id}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  key={item._id}
+                  onPress={() => handleSelectedCustomer(item)}>
+                  <View className="bg-[#D9D9D9] w-[100%] h-[65] rounded-xl mb-2 px-3">
+                    <View className="absolute p-[2%] flex justify-between flex-row gap-1 ">
+                      <View className="flex">
+                        <Text
+                          style={[
+                            {fontSize: wp(5)},
+                            {width: wp(40)},
+                            {height: hp(2.8)},
+                          ]}
+                          className="bg-[#D9D9D9]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
+                          {item.custName}
+                        </Text>
+                        <View className="flex  flex-row w-[170]">
+                          <View className="bg-[#D9D9D9]  w-[100%]  rounded-xl pl-3 ">
+                            <Text
+                              style={[{fontSize: wp(2.5)}]}
+                              className="font-bold text-[#775948] ">
+                              Whatsapp Number:
+                            </Text>
+                            <Text
+                              style={[{fontSize: wp(3)}]}
+                              className="font-bold text-[#775948 ">
+                              {item.custNumber}
+                            </Text>
+                          </View>
                         </View>
                       </View>
-                    </View>
 
-                    <View className="bg-[#D9D9D9] justify-center align-middle items-center text-center rounded-xl flex ">
-                      {item.custDueDate ? (
-                        <>
+                      <View className="bg-[#D9D9D9] justify-center align-middle items-center text-center rounded-xl flex ">
+                        {item.custDueDate ? (
+                          <>
+                            <Text
+                              style={[{fontSize: wp(4)}]}
+                              className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
+                              SAR: {item.custAmount} /-
+                            </Text>
+                            <Text
+                              style={[{fontSize: wp(3)}]}
+                              className="font-bold text-[#775948 text-center underline">
+                              Due Date: {'\n'}
+                              {item.custDueDate
+                                .split('T')[0]
+                                .split('-')
+                                .reverse()
+                                .join('-')}
+                            </Text>
+                          </>
+                        ) : (
                           <Text
-                            style={[{fontSize: wp(4)}]}
+                            style={[{fontSize: wp(5)}]}
                             className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
-                            SAR: {item.custAmount} /-
+                            ⟦ PAID ⟧
                           </Text>
-                          <Text
-                            style={[{fontSize: wp(3)}]}
-                            className="font-bold text-[#775948 text-center underline">
-                            Due Date: {'\n'}
-                            {item.custDueDate
-                              .split('T')[0]
-                              .split('-')
-                              .reverse()
-                              .join('-')}
-                          </Text>
-                        </>
-                      ) : (
-                        <Text
-                          style={[{fontSize: wp(5)}]}
-                          className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
-                          ⟦ PAID ⟧
-                        </Text>
-                      )}
+                        )}
+                      </View>
                     </View>
                   </View>
-                </View>
-              </TouchableOpacity>
-            )}
-            renderHiddenItem={({item}) => (
-              <TouchableOpacity
-                className="rounded-xl"
-                onPress={() => handleDelete(item._id)}
-                style={{
-                  backgroundColor: 'red',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  width: 75,
-                  height: '89%',
-                  position: 'absolute',
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                }}>
-                <Text className=" font-semibold text-lg text-white">
-                  Delete
-                </Text>
-              </TouchableOpacity>
-            )}
-            rightOpenValue={-75} // Swipe left to reveal the delete button
-          />
+                </TouchableOpacity>
+              )}
+              renderHiddenItem={({item}) => (
+                <TouchableOpacity
+                  className="rounded-xl"
+                  onPress={() => handleDelete(item._id)}
+                  style={{
+                    backgroundColor: 'red',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: 75,
+                    height: '89%',
+                    position: 'absolute',
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                  }}>
+                  <Text className=" font-semibold text-lg text-white">
+                    Delete
+                  </Text>
+                </TouchableOpacity>
+              )}
+              rightOpenValue={-75} // Swipe left to reveal the delete button
+            />
+          </ScrollView>
         </View>
       </View>
     </Layout>
