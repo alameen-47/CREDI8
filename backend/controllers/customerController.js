@@ -69,39 +69,6 @@ export const AddCustomer = async (req, res) => {
   }
 };
 
-// export const EditCustomer = async (req, res) => {
-//   try {
-//     const {_id, custName, custNumber, custAmount, custDueDate} = req.body;
-//     const customer = await customerModel.findByIdAndUpdate(_id); // Search by ID
-
-//     if (!customer) {
-//       return res.status(404).json({
-//         success: false,
-//         message: 'Customer not found with the given criteria',
-//       });
-//     }
-//     if (custName) customer.custName = custName;
-//     if (custAmount) customer.custAmount = custAmount;
-//     if (custDueDate) customer.custDueDate = custDueDate;
-//     if (custNumber) customer.custNumber = custNumber;
-
-//     //save the updated customer document
-//     const updatedCustomer = await customer.save();
-//     res.status(200).send({
-//       success: true,
-//       message: 'Customer Updated Successfully',
-//       customer: updatedCustomer, // Return the updated customer
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send({
-//       success: false,
-//       message: 'Error in Editing Customer Details',
-//       error,
-//     });
-//   }
-// };
-
 export const EditCustomer = async (req, res) => {
   try {
     const {_id, custAmount, custName, custDueDate, custNumber} = req.body;
@@ -130,11 +97,6 @@ export const EditCustomer = async (req, res) => {
       });
     }
 
-    // if (custName) customer.custName = custName;
-    // if (custAmount) customer.custAmount = custAmount;
-    // if (custNumber) customer.custNumber = custNumber;
-    // if (custDueDate) customer.custDueDate = custDueDate;
-
     res.status(200).send({
       success: true,
       message: 'Customer Details Updated Succesfully',
@@ -147,5 +109,39 @@ export const EditCustomer = async (req, res) => {
       message: 'Error While Updating Cusomer Details',
       error,
     });
+  }
+};
+
+export const FetchAllCustomer = async (req, res) => {
+  try {
+    const customers = await customerModel.find();
+    res.status(200).send(customers);
+    console.log(`????????????????????? ${customers}????????????????????`);
+  } catch (error) {
+    console.log(Error);
+    res.status(404).send({
+      success: false,
+      message: 'Error while fetching the All Customer Details',
+    });
+  }
+};
+
+export const DeleteCustomer = async (req, res) => {
+  try {
+    const {id} = req.params;
+    const deletedCustomer = await customerModel.findByIdAndDelete(id);
+    if (!deletedCustomer) {
+      return res
+        .status(404)
+        .json({success: false, message: 'Customer not found'});
+    }
+    return res
+      .status(200)
+      .json({success: true, message: 'Customer Deleted Succesfully'});
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({success: false, message: 'Server Error', error: error.message});
   }
 };

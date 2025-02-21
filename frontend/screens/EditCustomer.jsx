@@ -22,11 +22,11 @@ import {useNavigation} from '@react-navigation/native';
 
 export default function EditCustomer({route}) {
   const navigation = useNavigation();
-  const {customer} = route.params;
-  const [custName, setCustName] = useState(customer.custName);
-  const [custNumber, setCustNumber] = useState(customer.custNumber);
-  const [custAmount, setCustAmount] = useState(customer.custAmount);
-  const [custDueDate, setCustDueDate] = useState(customer.custDueDate);
+  const {customer} = route?.params || {};
+  const [custName, setCustName] = useState(customer?.custName);
+  const [custNumber, setCustNumber] = useState(customer?.custNumber);
+  const [custAmount, setCustAmount] = useState(customer?.custAmount);
+  const [custDueDate, setCustDueDate] = useState(customer?.custDueDate);
   const [show, setShow] = useState(false);
   const [previousDueDate, setPreviousDueDate] = useState();
   const toast = useToast();
@@ -118,11 +118,11 @@ export default function EditCustomer({route}) {
                   Name:
                 </Text>
                 <Text className=" text-black bg-[#F5DEB3]  w-auto px-2 rounded-lg  p-1">
-                  Previous Name: {customer.custName}
+                  Previous Name: {customer?.custName}
                 </Text>
                 <TextInput
                   name="custName"
-                  value={customer.custNumber}
+                  value={customer?.custNumber}
                   onChangeText={text => setCustName(text)}
                   placeholder="Enter Customer Name"
                   className=" text-black bg-white w-auto px-2 rounded-lg  p-1"></TextInput>
@@ -134,12 +134,12 @@ export default function EditCustomer({route}) {
                   Number:
                 </Text>
                 <Text className=" text-black bg-[#F5DEB3]  w-auto px-2 rounded-lg  p-1">
-                  Previous Number: {customer.custNumber}
+                  Previous Number: {customer?.custNumber}
                 </Text>
                 <TextInput
                   placeholder="Enter New Number "
                   name="custNumber"
-                  value={customer.custNumber}
+                  value={customer?.custNumber}
                   onChangeText={text => {
                     setCustNumber(text);
                   }}
@@ -154,11 +154,11 @@ export default function EditCustomer({route}) {
                   Amount:
                 </Text>
                 <Text className=" text-black bg-[#F5DEB3]  w-auto px-2 rounded-lg  p-1">
-                  Previous Amount: {customer.custAmount} SAR
+                  Previous Amount: {customer?.custAmount} SAR
                 </Text>
                 <TextInput
                   name="custAmount"
-                  value={customer.custAmount}
+                  value={customer?.custAmount}
                   onChangeText={text => setCustAmount(text)}
                   placeholder="Enter Amount"
                   className="  bg-white w-auto px-2 rounded-lg  p-1"></TextInput>

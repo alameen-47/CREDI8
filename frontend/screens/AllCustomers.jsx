@@ -5,72 +5,91 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
-import React from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Layout from './Layout';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import LinearGradient from 'react-native-linear-gradient';
 
-const customerData = [
-  // Add your customer data here
-  {
-    name: 'Salman Khan',
-    dueDate: '10/04/2025',
-    amount: '185',
-    phone: '908489161',
-    status: 'Pending',
-  },
-  {
-    name: 'Sharukh Khan',
-    phone: '908489161',
-    status: 'Paid',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Salman Khan',
-    dueDate: '10/04/2025',
-    amount: '185',
-    phone: '908489161',
-    status: 'Pending',
-  },
-  {
-    name: 'Sharukh Khan',
-    phone: '908489161',
-    status: 'Paid',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Salman Khan',
-    dueDate: '10/04/2025',
-    amount: '185',
-    phone: '908489161',
-    status: 'Pending',
-  },
-  {
-    name: 'Sharukh Khan',
-    phone: '908489161',
-    status: 'Paid',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Salman Khan',
-    dueDate: '10/04/2025',
-    amount: '185',
-    phone: '908489161',
-    status: 'Pending',
-  },
-  {
-    name: 'Sharukh Khan',
-    phone: '908489161',
-    status: 'Paid',
-    paidDate: '10/03/2024',
-  },
-];
+import LinearGradient from 'react-native-linear-gradient';
+import api from '../../backend/api/api';
+import {useNavigation} from '@react-navigation/native';
+import {SwipeListView} from 'react-native-swipe-list-view';
+import {SearchContext} from '../../backend/context/search';
 
 export default function AllCustomers() {
+  const {query} = useContext(SearchContext);
+  const navigation = useNavigation();
+  const [customers, setCustomers] = useState('');
+  const [allcustomers, setAllCustomers] = useState([]);
+
+  const fetchAllCustomers = async () => {
+    const res = await api.get('/api/v1/customer/all-customers');
+    setCustomers(res.data);
+    setAllCustomers(res.data);
+    console.log('11111111111111111111111', customers, '11111111111111111');
+  };
+
+  useEffect(() => {
+    if (query.trim() === '') {
+      setCustomers(allcustomers);
+    } else {
+      const filtered = allcustomers.filter(c =>
+        c.custName.toLowerCase().includes(query.toLowerCase()),
+      );
+      setCustomers(filtered);
+    }
+  }, [query, allcustomers]);
+
+  const handleSelectedCustomer = c => {
+    navigation.navigate('EditCustomer', {customer: c});
+  };
+
+  useEffect(() => {
+    fetchAllCustomers();
+  }, []);
+
+  useEffect(() => {
+    console.log('Updated Customers:', customers);
+  }, [customers]);
+
+  const handleDelete = customerId => {
+    Alert.alert(
+      'Delete Customer !!!',
+      'Are you sure you want to delete this customer?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: async () => {
+            try {
+              const response = await api.delete(
+                `/api/v1/customer/delete/${customerId}`,
+              );
+              const data = response.data;
+
+              if (data.success) {
+                setCustomers(customers.filter(c => c._id !== customerId));
+                Alert.alert('Success', 'Customer Deleted Successfully');
+              } else {
+                Alert.alert('Error', data.message);
+              }
+            } catch (error) {
+              Alert.alert('Error', 'Something Went wrong!');
+            }
+          },
+          style: 'destructive',
+        },
+      ],
+    );
+  };
+
   return (
     <Layout>
       <View style={{...styles.glassEffect, borderRadius: 15}}>
@@ -89,25 +108,18 @@ export default function AllCustomers() {
             className=" text-center mt-[10%] text-[#F4F1D6]">
             ALL CUSTOMER'S
           </Text>
-          <ScrollView nestedScrollEnabled={true} className="">
-            {/* //CUSTOMER DETAILS */}
-            {customerData.map((c, index) => {
-              return (
-                <TouchableOpacity key={index}>
-                  <View className="bg-[#D9D9D9] w-[100%] h-[65] rounded-xl mb-2 "></View>
-                  {c.dueDate ? (
-                    <Image
-                      style={{width: wp(9), height: wp(9)}}
-                      className="z-50 absolute flex right-[-7] top-[-14] "
-                      source={require('../assets/icons/Pending.png')}
-                    />
-                  ) : (
-                    <Image
-                      style={{width: wp(9), height: wp(9)}}
-                      className="z-50 absolute flex right-[-7] top-[-14] "
-                      source={require('../assets/icons/CheckMark.png')}
-                    />
-                  )}
+          <Text className="m-auto text-[#F4F1D6] text-[18px] font-semibold">
+            Total Customers: {customers.length}
+          </Text>
+
+          <SwipeListView
+            data={customers}
+            keyExtractor={item => item._id}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                key={item._id}
+                onPress={() => handleSelectedCustomer(item)}>
+                <View className="bg-[#D9D9D9] w-[100%] h-[65] rounded-xl mb-2 px-3">
                   <View className="absolute p-[2%] flex justify-between flex-row gap-1 ">
                     <View className="flex">
                       <Text
@@ -117,7 +129,7 @@ export default function AllCustomers() {
                           {height: hp(2.8)},
                         ]}
                         className="bg-[#D9D9D9]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
-                        {c.name}
+                        {item.custName}
                       </Text>
                       <View className="flex  flex-row w-[170]">
                         <View className="bg-[#D9D9D9]  w-[100%]  rounded-xl pl-3 ">
@@ -129,25 +141,29 @@ export default function AllCustomers() {
                           <Text
                             style={[{fontSize: wp(3)}]}
                             className="font-bold text-[#775948 ">
-                            {c.phone}
+                            {item.custNumber}
                           </Text>
                         </View>
                       </View>
                     </View>
 
                     <View className="bg-[#D9D9D9] justify-center align-middle items-center text-center rounded-xl flex ">
-                      {c.dueDate ? (
+                      {item.custDueDate ? (
                         <>
                           <Text
-                            style={[{fontSize: wp(5)}]}
+                            style={[{fontSize: wp(4)}]}
                             className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
-                            {c.amount}/-
+                            SAR: {item.custAmount} /-
                           </Text>
                           <Text
                             style={[{fontSize: wp(3)}]}
-                            className="font-bold text-[#775948 text-center">
+                            className="font-bold text-[#775948 text-center underline">
                             Due Date: {'\n'}
-                            {c.dueDate}
+                            {item.custDueDate
+                              .split('T')[0]
+                              .split('-')
+                              .reverse()
+                              .join('-')}
                           </Text>
                         </>
                       ) : (
@@ -159,10 +175,31 @@ export default function AllCustomers() {
                       )}
                     </View>
                   </View>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+                </View>
+              </TouchableOpacity>
+            )}
+            renderHiddenItem={({item}) => (
+              <TouchableOpacity
+                className="rounded-xl"
+                onPress={() => handleDelete(item._id)}
+                style={{
+                  backgroundColor: 'red',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  width: 75,
+                  height: '89%',
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                }}>
+                <Text className=" font-semibold text-lg text-white">
+                  Delete
+                </Text>
+              </TouchableOpacity>
+            )}
+            rightOpenValue={-75} // Swipe left to reveal the delete button
+          />
         </View>
       </View>
     </Layout>
