@@ -35,7 +35,6 @@ export default function Header() {
 
   const debouncedSearch = useCallback(
     debounce(text => {
-      // console.log('&&&&&&&&&&&', text, '&&&&&&&&&&&');
       handleSearch(text);
     }, 500),
     [handleSearch],

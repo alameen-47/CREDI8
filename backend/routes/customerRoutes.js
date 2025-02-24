@@ -4,7 +4,10 @@ import {
   DeleteCustomer,
   EditCustomer,
   FetchAllCustomer,
+  getTwiml,
+  makeBulkCalls,
   SearchController,
+  sendBulkWhatsappMessages,
 } from '../controllers/customerController.js';
 
 const router = express.Router();
@@ -22,4 +25,11 @@ router.get('/search', SearchController);
 
 router.delete('/delete/:id', DeleteCustomer);
 
+// Route to send Whatsapp Messages to all
+router.post('/send-whatsapp-messages', sendBulkWhatsappMessages);
 export default router;
+
+//route to initiate calls to all
+router.post('/make-call', makeBulkCalls);
+//route for the voice file located in the controller file
+router.get('/twiml-voice', getTwiml);
