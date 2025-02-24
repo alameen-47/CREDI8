@@ -54,7 +54,7 @@ export default function EditMessage() {
                   <Text style={{fontSize: wp(4)}} className="p-3">
                     Lorem ipsum dolor sit amet consectetur adipisicing elit.
                     Sunt ex eligendi deleniti cumque, reiciendis assumenda?
-                    Nobis iusto alias repellendus eaque eius praesentium omnis
+                    Nobis iusto alias repellendus eaque : eius praesentium omnis
                     commodi unde officia pariatur consequatur eligendi, maxime
                   </Text>
                 </View>
