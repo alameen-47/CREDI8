@@ -63,7 +63,7 @@ export default function Header() {
           placeholderTextColor="gray"></TextInput>
 
         {loading && <ActivityIndicator size="small" color="#0000ff" />}
-        {query.length > 0 ? (
+        {query?.length > 0 ? (
           <FlatList
             className="absolute top-[150%] bg-[#151E25] text-white p-2 rounded-b-md"
             data={results}

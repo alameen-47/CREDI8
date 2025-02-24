@@ -44,11 +44,11 @@ export default function AllCustomers() {
     fetchAllCustomers();
   };
   useEffect(() => {
-    if (query?.trim() === '') {
+    if ((query ?? '').trim() === '') {
       setCustomers(allcustomers);
     } else {
       const filtered = allcustomers.filter(c =>
-        c.custName.toLowerCase().includes(query.toLowerCase()),
+        c.custName.toLowerCase().includes(query?.toLowerCase()),
       );
       setCustomers(filtered);
     }
