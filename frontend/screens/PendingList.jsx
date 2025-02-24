@@ -6,76 +6,51 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Layout from './Layout';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
-
-const customerData = [
-  // Add your customer data here
-  {
-    name: 'Salman Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Sharukh Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Salman Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Sharukh Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Salman Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Sharukh Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Salman Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Sharukh Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-
-];
+import api from '../../backend/api/api';
+import {SearchContext} from '../../backend/context/search';
 
 export default function PaidList() {
+  const [customer, setCustomer] = useState();
+  const [allCustomer, setAllCustomer] = useState();
+  const [refreshing, setRefreshing] = useState(false);
+  const {query} = useContext(SearchContext);
+  const fetchAllCustomer = async () => {
+    try {
+      setRefreshing(true);
+      const res = await api.get('api/v1/customer/all-customers');
+      setCustomer(res.data);
+      setAllCustomer(res.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+  const onRefresh = () => {
+    fetchAllCustomer();
+  };
+  useEffect(() => {
+    fetchAllCustomer();
+  }, []);
+
+  useEffect(() => {
+    if (query?.trim() === '') {
+      setCustomer(allCustomer);
+    } else {
+      const filtered = allCustomer.filter(c =>
+        c.custName.toLowerCase().includes(query.toLowerCase()),
+      );
+      setCustomer(filtered);
+    }
+  }, [query, allCustomer]);
+
   return (
     <Layout>
       <View style={{...styles.glassEffect, borderRadius: 15}}>
@@ -117,65 +92,71 @@ export default function PaidList() {
           </View>
           <ScrollView nestedScrollEnabled={true} className="">
             {/* //CUSTOMER DETAILS */}
-            {customerData.map((c, index) => (
-              <View key={index}>
-                <View className="bg-black opacity-30 w-[100%] h-[65] rounded-xl mb-2 "></View>
-                <Image
-                  style={{width: wp(9), height: wp(9)}}
-                  className="z-50 absolute flex right-[-7] top-[-14] "
-                  source={require('../assets/icons/Pending.png')}
-                />
-                <View className="absolute p-[2%] flex justify-between flex-row gap-1 ">
-                  <View className="flex">
-                    <Text
-                      style={[{fontSize: wp(5)}]}
-                      className="bg-[#D9D9D9] w-[100%]  rounded-xl font-bold text-[#775948] mb-1 pl-2">
-                      {c.name}
-                    </Text>
-                    <View className="flex justify-between align-middle items-center flex-row w-[170]">
-                      <View className="bg-[#D9D9D9] w-auto px-2 rounded-xl ">
-                        <Text
-                          style={[{fontSize: wp(2.5)}]}
-                          className="font-bold text-[#775948] text-center">
-                          Purchase Date:
-                        </Text>
-                        <Text
-                          style={[{fontSize: wp(2)}]}
-                          className="font-bold text-[#775948 text-center">
-                          {c.purchaseDate}
-                        </Text>
-                      </View>
-                      <View className="bg-[#D9D9D9] w-auto px-5 rounded-xl ">
-                        <Text
-                          style={[{fontSize: wp(2.5)}]}
-                          className="font-bold text-[#775948] text-center">
-                          Due Date:
-                        </Text>
-                        <Text
-                          style={[{fontSize: wp(2)}]}
-                          className="font-bold text-[#775948 text-center">
-                          {c.dueDate}
-                        </Text>
+            {customer &&
+              customer?.map((c, index) => (
+                <View key={index}>
+                  <View className="bg-black opacity-30 w-[100%] h-[65] rounded-xl mb-2 "></View>
+                  <Image
+                    style={{width: wp(9), height: wp(9)}}
+                    className="z-50 absolute flex right-[-7] top-[-14] "
+                    source={require('../assets/icons/Pending.png')}
+                  />
+                  <View className="absolute p-[2%] flex justify-between flex-row gap-1 ">
+                    <View className="flex">
+                      <Text
+                        style={[{fontSize: wp(5)}]}
+                        className="bg-[#D9D9D9] w-[100%]  rounded-xl font-bold text-[#775948] mb-1 pl-2">
+                        {c.custName}
+                      </Text>
+                      <View className="flex justify-between align-middle items-center flex-row w-[170]">
+                        <View className="bg-[#D9D9D9] w-auto px-2 rounded-xl ">
+                          <Text
+                            style={[{fontSize: wp(2.5)}]}
+                            className="font-bold text-[#775948] text-center">
+                            Purchase Date:
+                          </Text>
+                          <Text
+                            style={[{fontSize: wp(2)}]}
+                            className="font-bold text-[#775948 text-center">
+                            {/* {c.purchaseDate} */}
+                            ""
+                          </Text>
+                        </View>
+                        <View className="bg-[#D9D9D9] w-auto px-5 rounded-xl ">
+                          <Text
+                            style={[{fontSize: wp(2.5)}]}
+                            className="font-bold text-[#775948] text-center">
+                            Due Date:
+                          </Text>
+                          <Text
+                            style={[{fontSize: wp(2)}]}
+                            className="font-bold text-[#775948 text-center">
+                            {c.custDueDate
+                              .split('T')[0]
+                              .split('-')
+                              .reverse()
+                              .join('-')}
+                          </Text>
+                        </View>
                       </View>
                     </View>
-                  </View>
-                  <TouchableOpacity className="bg-[#D9D9D9] flex justify-center align-middle items-center  top-5 rounded-3xl h-[40%] pt-1 w-auto">
-                    <Image
-                      style={{width: wp(7), height: wp(7)}}
-                      className="z-20"
-                      source={require('../assets/icons/Sent.png')}
-                    />
-                  </TouchableOpacity>
-                  <View className="bg-[#D9D9D9] justify-center align-middle items-center text-center rounded-xl flex ">
-                    <Text
-                      style={[{fontSize: wp(5)}]}
-                      className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
-                      {c.amount}/-
-                    </Text>
+                    <TouchableOpacity className="bg-[#D9D9D9] flex justify-center align-middle items-center m-auto rounded-3xl h-[90%]  w-auto">
+                      <Image
+                        style={{width: wp(7), height: wp(7)}}
+                        className="z-20 mt-2"
+                        source={require('../assets/icons/Sent.png')}
+                      />
+                    </TouchableOpacity>
+                    <View className="bg-[#D9D9D9] justify-center align-middle items-center text-center rounded-xl flex  w-[20%]">
+                      <Text
+                        style={[{fontSize: wp(4)}]}
+                        className="text-[#775948] text-center font-extrabold w-auto h-auto   ">
+                        {c.custAmount}/-
+                      </Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-            ))}
+              ))}
           </ScrollView>
         </View>
       </View>

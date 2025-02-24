@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Layout from './Layout';
 import {
   widthPercentageToDP as wp,
@@ -13,42 +13,29 @@ import {
 } from 'react-native-responsive-screen';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useToast} from 'react-native-toast-notifications';
-import axios from 'axios';
+import api from '../../backend/api/api';
+import {AuthContext} from '../../backend/context/auth';
 
 export default function UserDetails() {
   const navigation = useNavigation();
   const toast = useToast();
-  const route = useRoute(); // Get route parameters
-  const [users, setUsers] = useState([]); // State to store user data
-  const {id: userId} = route.params; // Extracting userId from route params
+  const [user, setUser] = useState([]); // State to store user data
 
-  console.log('User ID:', userId); // Add this line to check if userId is being received
+  const {auth} = useContext(AuthContext);
+  console.log('7777777777777777', auth, '7777777777777777');
 
-  //initial details
-  useEffect(() => {
-    if (userId) fetchUser();
-  }, [userId]);
-
-  // Check if userId is available
-  if (!userId) {
-    console.error('User ID is missing from route parameters');
-    return <Text>No User ID provided</Text>;
-  }
   const fetchUser = async () => {
     try {
-      const response = await axios.get(
-        `http://10.0.2.2:8086/api/v1/auth/user/${userId}`,
-      );
-      setUsers(response.data.users);
-    } catch (err) {
-      console.error(
-        'Error fetching user data:',
-        err.response ? err.response.data : err.message,
-      );
-      toast.show('Failed to fetch user data', {type: 'danger'});
+      const res = await api.get(`/user/${userId}`);
+      console.log("''''''''''''''''''''", res.data, ',,,,,,,,,,,,,,,,,,,,,,');
+      setUser(res.data);
+    } catch (error) {
+      console.error('Error Fetching User: ', error);
     }
   };
-
+  useEffect(() => {
+    console.log('[[[[[[[[[[[[[[[[[USER DETAIL ', user, 'USER]]]]]]]]]]]]]]');
+  }, [user]);
   return (
     <Layout>
       <View
@@ -59,7 +46,7 @@ export default function UserDetails() {
           className="  mt-20 text-[#775948]">
           USER PROFILE
         </Text>
-        {users?.map(u => (
+        {user?.map(u => (
           <View className="mt-8 w-[100%]">
             <View className="mb-9 flex-row justify-between align-middle items-center gap-4">
               <Text

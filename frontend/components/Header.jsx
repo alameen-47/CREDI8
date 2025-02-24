@@ -100,7 +100,9 @@ export default function Header() {
             </TouchableOpacity>
             {/* //List items */}
             <View className="absolute top-[40px] w-[150px] p-3 justify-between space-y-5  bg-[#151E25] right-[-14] rounded-bl-xl ">
-              <TouchableOpacity onPress={''} className="flex flex-row gap-x-3">
+              <TouchableOpacity
+                onPress={() => navigation.navigate('UserDetails')}
+                className="flex flex-row gap-x-3">
                 <Image
                   style={{width: wp(7), height: wp(7)}}
                   source={require('../assets/icons/User.png')}

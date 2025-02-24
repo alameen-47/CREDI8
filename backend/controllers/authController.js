@@ -297,7 +297,7 @@ export const getUserData = async (req, res) => {
   try {
     const userId = req.params.id; // Get the user ID from the URL parameter
     const users = await userModel.findById(userId).select('-password');
-
+     
     if (!users) {
       return res.status(404).send({
         success: false,

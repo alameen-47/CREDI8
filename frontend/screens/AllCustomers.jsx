@@ -44,7 +44,7 @@ export default function AllCustomers() {
     fetchAllCustomers();
   };
   useEffect(() => {
-    if (query.trim() === '') {
+    if (query?.trim() === '') {
       setCustomers(allcustomers);
     } else {
       const filtered = allcustomers.filter(c =>
@@ -61,10 +61,6 @@ export default function AllCustomers() {
   useEffect(() => {
     fetchAllCustomers();
   }, []);
-
-  useEffect(() => {
-    console.log('Updated Customers:', customers);
-  }, [customers]);
 
   const handleDelete = customerId => {
     Alert.alert(
