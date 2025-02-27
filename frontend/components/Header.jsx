@@ -64,6 +64,7 @@ export default function Header() {
         {loading && <ActivityIndicator size="small" color="#0000ff" />}
         {query?.length > 0 ? (
           <FlatList
+            nestedScrollEnabled={true}
             className="absolute top-[150%] bg-[#151E25] text-white p-2 rounded-b-md"
             data={results}
             keyExtractor={item => item._id}

@@ -7,15 +7,84 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Layout from './Layout';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
+import api from '../../backend/api/api';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import {useToast} from 'react-native-toast-notifications';
 
 export default function EditMessage() {
+  const toast = useToast();
+  const [message, setMessage] = useState('');
+  const [show, setShow] = useState(false);
+  const [scheduledAt, setScheduledAt] = useState(null);
+  const [existingMessage, setExistingMessage] = useState('');
+  const [existingDate, setExistingDate] = useState('');
+  console.log('$$$$$$$$$$$', message, '$$$$$$$$$$$$$');
+  console.log('$$$$$$$$$$$', scheduledAt, '$$$$$$$$$$$$$');
+
+  const createScheduledMessage = async (message, scheduledAt) => {
+    try {
+      const formattedDate =
+        scheduledAt instanceof Date ? scheduledAt.toISOString() : '';
+      const formattedMessage =
+        typeof message === 'string' ? message : JSON.stringify(message);
+
+      const res = await api.post('/api/v1/customer/create-message', {
+        message: formattedMessage,
+        scheduledAt: formattedDate,
+      });
+      toast.show('Messsage SET and Scheduled Successfully ');
+      console.log('Message Created Succesfully', res.data);
+    } catch (error) {
+      console.log('Error Creating Message', error);
+    }
+  };
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || scheduledAt;
+    setShow(Platform.OS === 'ios');
+    if (selectedDate) {
+      setScheduledAt(currentDate);
+    }
+  };
+  const showDatepicker = () => {
+    setShow(true);
+  };
+  const formatDate = date => {
+    if (!date) return 'Select a DAte';
+    let day = date.getDate().toString().padStart(2, '0');
+    let month = (date.getMonth() + 1).toString().padStart(2, '0');
+    let year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+  const getMessage = async () => {
+    try {
+      const res = await api.get('/api/v1/customer/get-message');
+      setExistingMessage(res.data[0].message);
+      const formattedDate = new Date(
+        res.data[0].scheduledAt,
+      ).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+      setExistingDate(formattedDate);
+      console.log(res.data, '}}}}}}}}}}}}}}}}}}}}}');
+      console.log('Existing Message', res.data[0].message);
+      console.log('Existing Date', res.data[0].scheduledAt);
+    } catch (error) {
+      console.log('Error Getting Message', error);
+    }
+  };
+  useEffect(() => {
+    getMessage();
+  }, []);
   return (
     <Layout>
       <View style={{...styles.glassEffect, borderRadius: 15}}>
@@ -49,13 +118,10 @@ export default function EditMessage() {
                   Previous Message:
                 </Text>
                 <View
-                  style={[{width: wp(60), height: wp(50)}]}
+                  style={[{width: wp(60), height: wp(30)}]}
                   className="bg-white rounded-lg">
                   <Text style={{fontSize: wp(4)}} className="p-3">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Sunt ex eligendi deleniti cumque, reiciendis assumenda?
-                    Nobis iusto alias repellendus eaque : eius praesentium omnis
-                    commodi unde officia pariatur consequatur eligendi, maxime
+                    {existingMessage}
                   </Text>
                 </View>
               </View>
@@ -70,16 +136,60 @@ export default function EditMessage() {
                   New Message:
                 </Text>
                 <View
-                  style={[{width: wp(60), height: wp(50)}]}
+                  style={[{width: wp(60), height: wp(30)}]}
                   className="bg-white rounded-lg">
                   <TextInput
+                    onChangeText={text => setMessage(text)}
                     style={{fontSize: wp(4)}}
                     className="p-3"></TextInput>
+                </View>
+                <View className="" style={[{width: wp(60), height: wp(30)}]}>
+                  <View>
+                    <Text
+                      style={[
+                        {fontSize: wp(5)},
+                        {width: wp(60)},
+                        {height: hp(3.8)},
+                      ]}
+                      className="bg-[#D9D9D9]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
+                      Previous Due Date:
+                    </Text>
+                    <Text className="bg-white rounded-lg px-2 font-bold text-lg">
+                      {existingDate}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text
+                      style={[
+                        {fontSize: wp(5)},
+                        {width: wp(60)},
+                        {height: hp(3.8)},
+                      ]}
+                      className="bg-[#D9D9D9]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
+                      New Due Date:
+                    </Text>
+                    <TouchableOpacity onPress={showDatepicker}>
+                      {show && (
+                        <DateTimePicker
+                          mode="date"
+                          value={
+                            scheduledAt ? new Date(scheduledAt) : new Date()
+                          }
+                          display="default"
+                          onChange={onChange}
+                        />
+                      )}
+                      <Text className="bg-white rounded-lg px-2 font-bold text-lg">
+                        {formatDate(scheduledAt)}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View></View>
                 </View>
               </View>
               <TouchableOpacity
                 style={[styles.shadow]}
-                onPress={() => navigation.navigate('EditUser')}
+                onPress={() => createScheduledMessage(message, scheduledAt)}
                 className=" bg-gray-900 flex text-center  top-[2%]  px-2 py-1 rounded-md border-2 border-gray-900">
                 <Text
                   style={[{fontSize: wp(4)}]}

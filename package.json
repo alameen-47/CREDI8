@@ -36,6 +36,7 @@
     "mongoose": "^8.5.4",
     "morgan": "^1.10.0",
     "nativewind": "^2.0.11",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.9.14",
     "nodemon": "^3.1.4",
     "otp-generator": "^4.0.1",

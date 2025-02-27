@@ -58,7 +58,9 @@ export default function PaidList() {
   const sendMessages = async () => {
     setLoading(true);
     try {
-      const res = await api.post('/api/v1/customer/send-whatsapp-messages');
+      const res = await api.post('/api/v1/customer/send-whatsapp-messages', {
+        message,
+      });
       if (res & res.data.success) {
         toast.show('Message Sent to All Successfully!!');
       }

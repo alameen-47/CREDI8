@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import twilio from 'twilio';
 dotenv.config(); // Load environment variables
 import customerModel from '../models/customerModel.js';
+import Message from '../models/messageModel.js';
 
 export const SearchController = async (req, res) => {
   // Extract the 'query' parameter from the request's query string
@@ -149,13 +150,8 @@ export const DeleteCustomer = async (req, res) => {
 
 //WHATSAPP MESSAGE CONTROLLER
 const client = twilio(process.env.TWILIO_SSID, process.env.TWILIO_AUTH_TOKEN);
-export const sendBulkWhatsappMessages = async (req, res) => {
-  console.log('Twilio SID:', process.env.TWILIO_SSID?.slice(0, 5), '...');
-  console.log(
-    'Twilio Auth:',
-    process.env.TWILIO_AUTH_TOKEN?.slice(0, 5),
-    '...',
-  );
+export const sendBulkWhatsappMessages = async message => {
+  const {messageBody} = message; // The message body to be sent
 
   try {
     const customers = await customerModel.find();
@@ -231,11 +227,63 @@ export const makeBulkCalls = async (req, res) => {
 };
 //twilio voice file for calling
 export const getTwiml = (req, res) => {
+  const message =
+    req.body.message ||
+    'مرحباً، هذه تذكرة من مول رواد السليمي بخصوص المبلغ المتبقي على حسابكم. يرجى تسويته في أقرب وقت ممكن. شكراً لكم!';
+
   res.type('text/xml');
   res.send(`
     <Response>
-    <Say voice="alice" language="ar-SA">"مرحباً، هذه تذكرة من مول رواد السليمي بخصوص المبلغ المتبقي على حسابكم. يرجى تسويته في أقرب وقت ممكن. شكراً لكم!"
-</Say>
+    <Say voice="alice" language="ar-SA">${message}</Say>
     </Response>
     `);
+};
+
+export const createMessage = async (req, res) => {
+  const {message, scheduledAt} = req.body;
+
+  if (!message || !scheduledAt) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields',
+    });
+  }
+  // Check if scheduledAt is a valid date
+  const parsedDate = new Date(scheduledAt);
+
+  if (isNaN(parsedDate)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid date format for scheduledAt',
+    });
+  }
+  try {
+    const updatedMessage = await Message.findOneAndUpdate(
+      {},
+      {message, scheduledAt: parsedDate, sent: false},
+      {new: true},
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Message created and scheduled successfully',
+      data: updatedMessage,
+    });
+  } catch (error) {
+    console.log('Error Creating Message: ', error);
+    res.status(500).json({success: false, error: error.message});
+  }
+};
+
+export const getMesssge = async (req, res) => {
+  try {
+    const message = await Message.find();
+    res.status(200).send(message);
+    console.log(`]]]]]]]]]]]]${message}[[[[[[[[[]]]]]]]]]`);
+  } catch (error) {
+    res.status(404).send({
+      success: false,
+      message: 'No messages found',
+    });
+  }
 };

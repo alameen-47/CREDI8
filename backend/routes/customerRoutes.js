@@ -1,9 +1,11 @@
 import express from 'express';
 import {
   AddCustomer,
+  createMessage,
   DeleteCustomer,
   EditCustomer,
   FetchAllCustomer,
+  getMesssge,
   getTwiml,
   makeBulkCalls,
   SearchController,
@@ -25,6 +27,7 @@ router.get('/search', SearchController);
 
 router.delete('/delete/:id', DeleteCustomer);
 
+router.post('/create-message', createMessage);
 // Route to send Whatsapp Messages to all
 router.post('/send-whatsapp-messages', sendBulkWhatsappMessages);
 export default router;
@@ -33,3 +36,5 @@ export default router;
 router.post('/make-call', makeBulkCalls);
 //route for the voice file located in the controller file
 router.get('/twiml-voice', getTwiml);
+
+router.get('/get-message', getMesssge);
