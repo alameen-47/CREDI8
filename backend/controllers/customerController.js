@@ -240,34 +240,48 @@ export const getTwiml = (req, res) => {
 };
 
 export const createMessage = async (req, res) => {
-  const {message, scheduledAt} = req.body;
-
-  if (!message || !scheduledAt) {
-    return res.status(400).json({
-      success: false,
-      message: 'Missing required fields',
-    });
-  }
-  // Check if scheduledAt is a valid date
-  const parsedDate = new Date(scheduledAt);
-
-  if (isNaN(parsedDate)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid date format for scheduledAt',
-    });
-  }
   try {
-    const updatedMessage = await Message.findOneAndUpdate(
+    const {message, scheduledAt} = req.body;
+    // Fetch latest existing message if present
+    const latest = await Message.findOne().sort({createdAt: -1});
+
+    const newMessage = message || (latest && latest.message);
+    const newScheduledAt = scheduledAt || (latest && latest.scheduledAt);
+
+    // If only one field is missing, fetch the most recent message to use its value
+    if (!newMessage || !newScheduledAt) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot use existing data because no messages exist yet',
+      });
+    }
+
+    // Check if scheduledAt is a valid date
+    const parsedDate = new Date(scheduledAt);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid date format for scheduledAt',
+      });
+    }
+    // Create the new message
+    const created = await Message.findOneAndUpdate(
       {},
-      {message, scheduledAt: parsedDate, sent: false},
-      {new: true},
+      {
+        message,
+        scheduledAt: parsedDate,
+        sent: false,
+      },
+      {
+        upsert: true, // Create one if none exists
+        new: true, // Return updated document
+      },
     );
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       message: 'Message created and scheduled successfully',
-      data: updatedMessage,
+      data: created,
     });
   } catch (error) {
     console.log('Error Creating Message: ', error);
@@ -277,7 +291,10 @@ export const createMessage = async (req, res) => {
 
 export const getMesssge = async (req, res) => {
   try {
-    const message = await Message.find();
+    const message = await Message.findOne().sort({ createdAt: -1 }); // Get latest message
+    if (!message) {
+      return res.status(404).send({ success: false, message: 'No messages found' });
+    }
     res.status(200).send(message);
     console.log(`]]]]]]]]]]]]${message}[[[[[[[[[]]]]]]]]]`);
   } catch (error) {

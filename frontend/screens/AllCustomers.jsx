@@ -124,6 +124,7 @@ export default function AllCustomers() {
             <SwipeListView
               data={customers}
               keyExtractor={item => item._id}
+              nestedScrollEnabled={true}
               renderItem={({item}) => (
                 <TouchableOpacity
                   key={item._id}
@@ -160,7 +161,7 @@ export default function AllCustomers() {
                         {item.custDueDate ? (
                           <>
                             <Text
-                              style={[{fontSize: wp(4)}]}
+                              style={[{fontSize: wp(3.5)}]}
                               className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
                               SAR: {item.custAmount} /-
                             </Text>

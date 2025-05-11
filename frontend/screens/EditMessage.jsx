@@ -66,18 +66,18 @@ export default function EditMessage() {
   const getMessage = async () => {
     try {
       const res = await api.get('/api/v1/customer/get-message');
-      setExistingMessage(res.data[0].message);
-      const formattedDate = new Date(
-        res.data[0].scheduledAt,
-      ).toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
-      setExistingDate(formattedDate);
-      console.log(res.data, '}}}}}}}}}}}}}}}}}}}}}');
-      console.log('Existing Message', res.data[0].message);
-      console.log('Existing Date', res.data[0].scheduledAt);
+      const {message, scheduledAt} = res.data;
+
+      setExistingMessage(message);
+      setExistingDate(
+        new Date(scheduledAt).toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        }),
+      );
+      console.log('Message:', message);
+      console.log('Scheduled Date:', scheduledAt);
     } catch (error) {
       console.log('Error Getting Message', error);
     }
@@ -120,7 +120,9 @@ export default function EditMessage() {
                 <View
                   style={[{width: wp(60), height: wp(30)}]}
                   className="bg-white rounded-lg">
-                  <Text style={{fontSize: wp(4)}} className="p-3">
+                  <Text
+                    style={{fontSize: wp(4), flexWrap: 'wrap'}}
+                    className="p-3">
                     {existingMessage}
                   </Text>
                 </View>
@@ -139,6 +141,7 @@ export default function EditMessage() {
                   style={[{width: wp(60), height: wp(30)}]}
                   className="bg-white rounded-lg">
                   <TextInput
+                    multiline={true}
                     onChangeText={text => setMessage(text)}
                     style={{fontSize: wp(4)}}
                     className="p-3"></TextInput>
