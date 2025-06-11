@@ -17,8 +17,12 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {useToast} from 'react-native-toast-notifications';
 import api from '../../backend/api/api';
+import {useContext} from 'react';
+import {AuthContext} from '../../backend/context/auth';
 
 export default function AddCustomerScreen() {
+  const {auth} = useContext(AuthContext);
+  const userId = auth?.user?._id;
   const navigation = useNavigation();
   const [custDueDate, setCustDueDate] = useState(new Date());
   const [show, setShow] = useState(false);
@@ -26,7 +30,8 @@ export default function AddCustomerScreen() {
   const [custNumber, setCustNumber] = useState('');
   const [custAmount, setCustAmount] = useState('');
   const toast = useToast();
-
+  console.log('----===------ ', auth, '------===----');
+  console.log('---------- ', userId, '----------');
   const handleSubmit = async () => {
     console.log('AddCustomer Function called');
 
@@ -37,6 +42,7 @@ export default function AddCustomerScreen() {
         custNumber,
         custAmount,
         custDueDate,
+        userId,
       });
       if (res && res.data.success) {
         toast.show('Customer Added Succesfully');

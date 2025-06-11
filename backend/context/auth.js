@@ -20,7 +20,7 @@ const AuthProvider = ({children}) => {
 
   // Store the current user's info and token in state
   const [auth, setAuth] = useState({
-    user: null,  // No user by default
+    user: null, // No user by default
     token: null, // No token by default
   });
 
@@ -41,8 +41,13 @@ const AuthProvider = ({children}) => {
           setAuth({
             user: parseData.user,
             token: parseData.token,
+            // userID:parseData.
           });
-
+          console.log(
+            '------PARSED DATA------',
+            parseData,
+            '------PARSED DATA------',
+          );
           // Redirect to Home screen if user is logged in
           navigation.navigate('HomeScreen');
         } else {
@@ -80,6 +85,10 @@ const AuthProvider = ({children}) => {
         '****\\\\\\***** Stored Auth Data ****\\\\\\****:',
         storedData,
       );
+      console.log('Token Created With Secret:', process.env.JWT_SECRET);
+      const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET, {
+        expiresIn: '7d',
+      });
     } catch (error) {
       // Log errors if saving fails
       console.error('Error saving auth data:', error);

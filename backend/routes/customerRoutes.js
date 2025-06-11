@@ -1,4 +1,5 @@
 import express from 'express';
+
 import {
   AddCustomer,
   createMessage,
@@ -11,6 +12,7 @@ import {
   SearchController,
   sendBulkWhatsappMessages,
 } from '../controllers/customerController.js';
+import {authMiddleware} from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -21,6 +23,10 @@ router.get('/all-customers', FetchAllCustomer);
 router.post('/add-customer', AddCustomer);
 
 router.put('/edit-customer', EditCustomer);
+
+router.get('/protected', authMiddleware, (req, res) => {
+  res.json({message: 'YOu are protected', user: req.user});
+});
 
 // Route to handle search requests
 router.get('/search', SearchController);

@@ -28,6 +28,8 @@ export default function AllCustomers() {
   const [allcustomers, setAllCustomers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
+  
+
   const fetchAllCustomers = async () => {
     try {
       setRefreshing(true); // Show loading

@@ -102,6 +102,7 @@ export const login = async (req, res) => {
       success: true,
       message: 'Login successful',
       user: {
+        _id: user._id,
         name: user.name,
         email: user.email,
         phone: user.phone,
@@ -293,12 +294,12 @@ export const getAllUsers = async (req, res) => {
 };
 
 // Controller function to fetch user data
-export const getUserData = async (req, res) => {
+export const getUserData = async ( req, res) => {
   try {
     const userId = req.params.id; // Get the user ID from the URL parameter
-    const users = await userModel.findById(userId).select('-password');
-     
-    if (!users) {
+    const user = await userModel.findById(userId).select('-password');
+
+    if (!user) {
       return res.status(404).send({
         success: false,
         message: 'User not found',
@@ -308,7 +309,7 @@ export const getUserData = async (req, res) => {
     res.status(200).send({
       success: true,
       message: 'User data fetched successfully',
-      users,
+      user,
     });
   } catch (error) {
     console.error(error);

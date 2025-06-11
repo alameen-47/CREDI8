@@ -37,7 +37,8 @@ export const SearchController = async (req, res) => {
 
 export const AddCustomer = async (req, res) => {
   try {
-    const {custName, custNumber, custAmount, custDueDate} = req.body;
+    const {custName, custNumber, custAmount, custDueDate, userId} = req.body;
+    console.log('%%%%%%%%%>>>>>>>>>>>>', userId, '<<<<<<<<<<%%%%%%%%%');
     if (!custName || !custNumber || !custAmount || !custDueDate) {
       return res.status(400).json({message: 'Please fill in all fields.'});
     }
@@ -54,6 +55,7 @@ export const AddCustomer = async (req, res) => {
       custNumber,
       custAmount,
       custDueDate,
+      owner: userId,
     });
     await customer.save();
     res.status(201).json({
@@ -116,7 +118,7 @@ export const EditCustomer = async (req, res) => {
 
 export const FetchAllCustomer = async (req, res) => {
   try {
-    const customers = await customerModel.find();
+    const customers = await customerModel.find({owner: req.users._id});
     res.status(200).send(customers);
     console.log(`????????????????????? ${customers}????????????????????`);
   } catch (error) {
@@ -291,9 +293,11 @@ export const createMessage = async (req, res) => {
 
 export const getMesssge = async (req, res) => {
   try {
-    const message = await Message.findOne().sort({ createdAt: -1 }); // Get latest message
+    const message = await Message.findOne().sort({createdAt: -1}); // Get latest message
     if (!message) {
-      return res.status(404).send({ success: false, message: 'No messages found' });
+      return res
+        .status(404)
+        .send({success: false, message: 'No messages found'});
     }
     res.status(200).send(message);
     console.log(`]]]]]]]]]]]]${message}[[[[[[[[[]]]]]]]]]`);
