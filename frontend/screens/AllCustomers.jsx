@@ -28,18 +28,16 @@ export default function AllCustomers() {
   const [allcustomers, setAllCustomers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  
-
   const fetchAllCustomers = async () => {
     try {
-      setRefreshing(true); // Show loading
       const res = await api.get('/api/v1/customer/all-customers');
+      console.log(`"DATA_____________"${res}""`);
       setCustomers(res.data);
       setAllCustomers(res.data);
     } catch (error) {
-      Alert.alert('Error', 'Failed to Fetch Customers');
-    } finally {
-      setRefreshing(false);
+      console.log('Error Getting Message', error);
+
+      // Alert.alert('Error', 'Failed to Fetch Customers');
     }
   };
   const onRefresh = () => {
@@ -125,6 +123,8 @@ export default function AllCustomers() {
             }>
             <SwipeListView
               data={customers}
+              refreshing={refreshing}
+              onRefresh={onRefresh}
               keyExtractor={item => item._id}
               nestedScrollEnabled={true}
               renderItem={({item}) => (

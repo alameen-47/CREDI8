@@ -1,5 +1,12 @@
-import {View, Text, StyleSheet, ScrollView, Image, RefreshControl} from 'react-native';
-import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  RefreshControl,
+} from 'react-native';
+import React, {useState} from 'react';
 import Layout from './Layout';
 import {
   widthPercentageToDP as wp,
@@ -68,6 +75,8 @@ const customerData = [
 ];
 
 export default function PaidList() {
+  const [refreshing, setRefreshing] = useState(false);
+
   return (
     <Layout>
       <View style={{...styles.glassEffect, borderRadius: 15}}>
@@ -86,11 +95,11 @@ export default function PaidList() {
             className=" text-center mt-[10%] text-[#F4F1D6]">
             PAID CUSTOMER LIST
           </Text>
-          <ScrollView nestedScrollEnabled={true}
-           refreshControl={
-    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-  }
-          >
+          <ScrollView
+            nestedScrollEnabled={true}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
             {/* //CUSTOMER DETAILS */}
             {customerData.map((c, index) => (
               <View key={index} className="">
