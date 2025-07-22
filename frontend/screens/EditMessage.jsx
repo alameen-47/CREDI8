@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  RefreshControl,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Layout from './Layout';
@@ -103,7 +104,11 @@ export default function EditMessage() {
             className=" text-center mt-[10%] text-[#F4F1D6]">
             EDIT MESSAGE
           </Text>
-          <ScrollView nestedScrollEnabled={true} className="">
+          <ScrollView nestedScrollEnabled={true} className=""
+           refreshControl={
+    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+  }
+          >
             <View
               style={[{width: 275, height: 580}, styles.shadow]}
               className="bg-[#D9D9D9] rounded-lg py-3 align-middle items-center space-y-2">

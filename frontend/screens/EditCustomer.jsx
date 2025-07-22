@@ -7,6 +7,7 @@ import {
   Platform,
   FlatList,
   ScrollView,
+  RefreshControl,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, {useEffect, useState} from 'react';
@@ -30,11 +31,11 @@ export default function EditCustomer({route}) {
   const [show, setShow] = useState(false);
   const [previousDueDate, setPreviousDueDate] = useState();
   const toast = useToast();
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleSubmit = async () => {
     try {
       const updatedFields = {_id: customer._id};
-
       if (custName !== customer.custName) updatedFields.custName = custName;
       if (custNumber !== customer.custNumber)
         updatedFields.custNumber = custNumber;

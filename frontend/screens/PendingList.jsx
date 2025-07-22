@@ -5,6 +5,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Layout from './Layout';
@@ -19,12 +20,12 @@ import {Toast, useToast} from 'react-native-toast-notifications';
 
 export default function PaidList() {
   const [customer, setCustomer] = useState();
-  const [allCustomer, setAllCustomer] = useState();
+  const [allCustomer, setAllCustomer] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const {query} = useContext(SearchContext);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
-
+  console.log('<<<<<<<<<<<<<<', allCustomer, '>>>>>>>>>>>>>>');
   const fetchAllCustomer = async () => {
     try {
       setRefreshing(true);
@@ -47,7 +48,7 @@ export default function PaidList() {
   useEffect(() => {
     if ((query ?? '').trim() === '') {
       setCustomer(allCustomer);
-    } else {
+    } else if (Array.isArray(allCustomer)) {
       const filtered = allCustomer.filter(c =>
         c.custName.toLowerCase().includes(query.toLowerCase()),
       );
@@ -125,7 +126,12 @@ export default function PaidList() {
               </View>
             </TouchableOpacity>
           </View>
-          <ScrollView nestedScrollEnabled={true} className="">
+          <ScrollView
+            nestedScrollEnabled={true}
+            className=""
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
             {/* //CUSTOMER DETAILS */}
             {customer &&
               customer?.map((c, index) => (

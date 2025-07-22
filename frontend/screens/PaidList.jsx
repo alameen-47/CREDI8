@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, ScrollView, Image} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, Image, RefreshControl} from 'react-native';
 import React from 'react';
 import Layout from './Layout';
 import {
@@ -86,7 +86,11 @@ export default function PaidList() {
             className=" text-center mt-[10%] text-[#F4F1D6]">
             PAID CUSTOMER LIST
           </Text>
-          <ScrollView nestedScrollEnabled={true}>
+          <ScrollView nestedScrollEnabled={true}
+           refreshControl={
+    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+  }
+          >
             {/* //CUSTOMER DETAILS */}
             {customerData.map((c, index) => (
               <View key={index} className="">
