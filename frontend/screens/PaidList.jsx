@@ -95,11 +95,7 @@ export default function PaidList() {
             className=" text-center mt-[10%] text-[#F4F1D6]">
             PAID CUSTOMER LIST
           </Text>
-          <ScrollView
-            nestedScrollEnabled={true}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }>
+          <ScrollView nestedScrollEnabled={true}>
             {/* //CUSTOMER DETAILS */}
             {customerData.map((c, index) => (
               <View key={index} className="">

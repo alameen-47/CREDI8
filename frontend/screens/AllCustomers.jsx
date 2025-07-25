@@ -20,18 +20,22 @@ import api from '../../backend/api/api';
 import {useNavigation} from '@react-navigation/native';
 import {SwipeListView} from 'react-native-swipe-list-view';
 import {SearchContext} from '../../backend/context/search';
+import {AuthContext} from '../../backend/context/auth';
 
 export default function AllCustomers() {
+  const {auth} = useContext(AuthContext);
   const {query} = useContext(SearchContext);
   const navigation = useNavigation();
   const [customers, setCustomers] = useState('');
   const [allcustomers, setAllCustomers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
+  const userId = auth.user._id;
   const fetchAllCustomers = async () => {
     try {
-      const res = await api.get('/api/v1/customer/all-customers');
-      console.log(`"DATA_____________"${res}""`);
+      const res = await api.get(
+        `/api/v1/customer/all-customers?userId=${userId}`,
+      );
       setCustomers(res.data);
       setAllCustomers(res.data);
     } catch (error) {

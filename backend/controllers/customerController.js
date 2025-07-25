@@ -118,9 +118,11 @@ export const EditCustomer = async (req, res) => {
 
 export const FetchAllCustomer = async (req, res) => {
   try {
-    const customers = await customerModel.find({owner: req.users._id});
+    const userId = req.query.userId;
+    if (!userId) return res.status(400).json({message: 'User ID is required'});
+    console.log('<<<<<<<<<<<<<<<', userId, '>>>>>>>>>>>');
+    const customers = await customerModel.find({owner: userId});
     res.status(200).send(customers);
-    console.log(`????????????????????? ${customers}????????????????????`);
   } catch (error) {
     console.log(Error);
     res.status(404).send({

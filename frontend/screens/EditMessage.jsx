@@ -26,6 +26,7 @@ export default function EditMessage() {
   const [scheduledAt, setScheduledAt] = useState(null);
   const [existingMessage, setExistingMessage] = useState('');
   const [existingDate, setExistingDate] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   console.log('$$$$$$$$$$$', message, '$$$$$$$$$$$$$');
   console.log('$$$$$$$$$$$', scheduledAt, '$$$$$$$$$$$$$');
 
@@ -86,6 +87,9 @@ export default function EditMessage() {
   useEffect(() => {
     getMessage();
   }, []);
+  const onRefresh = () => {
+    getMessage();
+  };
   return (
     <Layout>
       <View style={{...styles.glassEffect, borderRadius: 15}}>
@@ -104,11 +108,12 @@ export default function EditMessage() {
             className=" text-center mt-[10%] text-[#F4F1D6]">
             EDIT MESSAGE
           </Text>
-          <ScrollView nestedScrollEnabled={true} className=""
-           refreshControl={
-    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-  }
-          >
+          <ScrollView
+            nestedScrollEnabled={true}
+            className=""
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
             <View
               style={[{width: 275, height: 580}, styles.shadow]}
               className="bg-[#D9D9D9] rounded-lg py-3 align-middle items-center space-y-2">
