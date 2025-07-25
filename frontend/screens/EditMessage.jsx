@@ -8,7 +8,7 @@ import {
   TextInput,
   RefreshControl,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useId, useState} from 'react';
 import Layout from './Layout';
 import {
   widthPercentageToDP as wp,
@@ -18,9 +18,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import api from '../../backend/api/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useToast} from 'react-native-toast-notifications';
+import {AuthContext} from '../../backend/context/auth';
 
 export default function EditMessage() {
   const toast = useToast();
+  const {auth} = useContext(AuthContext);
   const [message, setMessage] = useState('');
   const [show, setShow] = useState(false);
   const [scheduledAt, setScheduledAt] = useState(null);
@@ -30,6 +32,7 @@ export default function EditMessage() {
   console.log('$$$$$$$$$$$', message, '$$$$$$$$$$$$$');
   console.log('$$$$$$$$$$$', scheduledAt, '$$$$$$$$$$$$$');
 
+  const userId = auth?.user?._id;
   const createScheduledMessage = async (message, scheduledAt) => {
     try {
       const formattedDate =
@@ -37,9 +40,10 @@ export default function EditMessage() {
       const formattedMessage =
         typeof message === 'string' ? message : JSON.stringify(message);
 
-      const res = await api.post('/api/v1/customer/create-message', {
+      const res = await api.post(`/api/v1/customer/create-message`, {
         message: formattedMessage,
         scheduledAt: formattedDate,
+        userId,
       });
       toast.show('Messsage SET and Scheduled Successfully ');
       console.log('Message Created Succesfully', res.data);
@@ -67,7 +71,9 @@ export default function EditMessage() {
   };
   const getMessage = async () => {
     try {
-      const res = await api.get('/api/v1/customer/get-message');
+      const res = await api.get(
+        `/api/v1/customer/get-message?userId=${userId}`,
+      );
       const {message, scheduledAt} = res.data;
 
       setExistingMessage(message);

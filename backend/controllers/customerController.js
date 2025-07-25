@@ -3,6 +3,7 @@ import twilio from 'twilio';
 dotenv.config(); // Load environment variables
 import customerModel from '../models/customerModel.js';
 import Message from '../models/messageModel.js';
+import {useReducer} from 'react';
 
 export const SearchController = async (req, res) => {
   // Extract the 'query' parameter from the request's query string
@@ -245,9 +246,16 @@ export const getTwiml = (req, res) => {
 
 export const createMessage = async (req, res) => {
   try {
-    const {message, scheduledAt} = req.body;
+    const {message, scheduledAt, userId} = req.body;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({success: false, message: 'User ID is required'});
+    }
+
     // Fetch latest existing message if present
-    const latest = await Message.findOne().sort({createdAt: -1});
+    const latest = await Message.findOne({owner: userId}).sort({createdAt: -1});
 
     const newMessage = message || (latest && latest.message);
     const newScheduledAt = scheduledAt || (latest && latest.scheduledAt);
@@ -270,11 +278,12 @@ export const createMessage = async (req, res) => {
     }
     // Create the new message
     const created = await Message.findOneAndUpdate(
-      {},
+      {owner: userId},
       {
         message,
         scheduledAt: parsedDate,
         sent: false,
+        owner: userId,
       },
       {
         upsert: true, // Create one if none exists
@@ -295,7 +304,10 @@ export const createMessage = async (req, res) => {
 
 export const getMesssge = async (req, res) => {
   try {
-    const message = await Message.findOne().sort({createdAt: -1}); // Get latest message
+    const userId = req.query.userId;
+    const message = await Message.findOne({owner: userId}).sort({
+      createdAt: -1,
+    }); // Get latest message
     if (!message) {
       return res
         .status(404)
