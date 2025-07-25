@@ -26,7 +26,8 @@ export const register = async (req, res) => {
     // If the user already exists, return an error response
     if (ExistingUser) {
       return res.status(400).send({
-        success: true,
+        success: false,
+        code: 'USER_EXISTS',
         message: 'Email already exists, Please login',
       });
     }
@@ -59,6 +60,8 @@ export const register = async (req, res) => {
     // Send a server error response
     res.status(500).send({
       success: false,
+      code: 'SERVER_ERROR',
+
       message: 'Error in Registration',
       error, // Include the error for more detailed debugging
     });
@@ -294,7 +297,7 @@ export const getAllUsers = async (req, res) => {
 };
 
 // Controller function to fetch user data
-export const getUserData = async ( req, res) => {
+export const getUserData = async (req, res) => {
   try {
     const userId = req.params.id; // Get the user ID from the URL parameter
     const user = await userModel.findById(userId).select('-password');

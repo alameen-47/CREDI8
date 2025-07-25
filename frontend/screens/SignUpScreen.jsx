@@ -36,14 +36,24 @@ export default function SignUpScreen() {
         password,
         phone,
       });
-      if (res && res.data.success) {
+      const {success, message} = response.data;
+
+      if (success) {
         toast.show('Registered Successfully!!!');
         navigation.navigate('LogIn');
-      } else {
-        alert('Error', res.data.message);
       }
     } catch (error) {
-      toast.show(`Something went wrong!! ${error.message}`);
+      const status = error.response?.status;
+      const code = error.response?.data?.code;
+      const message = error.response?.data?.message;
+
+      if (code === 'USER_EXISTS') {
+        toast.show(message || 'Already Registered, Please Login!');
+      } else if (code === 'MISSING_FIELDS') {
+        toast.show(message);
+      } else {
+        toast.show('Something went wrong. Please try again');
+      }
     }
   };
 
