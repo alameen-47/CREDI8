@@ -30,7 +30,7 @@ export default function AllCustomers() {
   const [allcustomers, setAllCustomers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const userId = auth.user._id;
+  const userId = auth?.user?._id;
   const fetchAllCustomers = async () => {
     try {
       const res = await api.get(

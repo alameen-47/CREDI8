@@ -6,6 +6,8 @@ const customerSchema = new mongoose.Schema({
   custNumber: {type: Number, required: true, maxlength: 10},
   custDueDate: {type: Date, required: true},
   owner: {type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true},
+  paid: {type: Boolean, default: true},
+  pending: {type: Boolean, default: true},
 });
 
 export default mongoose.model('customers', customerSchema);
