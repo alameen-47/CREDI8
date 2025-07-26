@@ -48,9 +48,11 @@ export default function AllCustomers() {
       // Alert.alert('Error', 'Failed to Fetch Customers');
     }
   };
+
   const onRefresh = () => {
     fetchAllCustomers();
   };
+
   useEffect(() => {
     const search = (query || '').trim().toLowerCase();
     const filtered = search
@@ -125,7 +127,11 @@ export default function AllCustomers() {
           <View className="flex flex-row  justify-between">
             <>
               <TouchableOpacity
-                onPressIn={() => setPaidFocused(prev => !prev)}
+                onPressIn={() => {
+                  setPaidFocused(prev => !prev);
+                  setPenddingFocused(false);
+                  fetchAllCustomers('paid');
+                }}
                 className={`${
                   paidFocused ? 'bg-[#F4F1D6]' : 'bg-[#775948]'
                 } rounded-lg p-[2%] w-[45%] text-center flex align-middle items-center`}>
@@ -137,7 +143,11 @@ export default function AllCustomers() {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPressIn={() => setPenddingFocused(prev => !prev)}
+                onPressIn={() => {
+                  setPenddingFocused(prev => !prev);
+                  setPaidFocused(false);
+                  fetchAllCustomers('pending');
+                }}
                 className={`${
                   pendingFocused ? 'bg-[#F4F1D6]' : 'bg-[#775948]'
                 } rounded-lg p-[2%] w-[45%] text-center flex align-middle items-center`}>
