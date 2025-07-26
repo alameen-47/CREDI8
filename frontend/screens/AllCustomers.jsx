@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   RefreshControl,
+  Pressable,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Layout from './Layout';
@@ -29,6 +30,8 @@ export default function AllCustomers() {
   const [customers, setCustomers] = useState('');
   const [allcustomers, setAllCustomers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [paidFocused, setPaidFocused] = useState(false);
+  const [pendingFocused, setPenddingFocused] = useState(false);
 
   const userId = auth?.user?._id;
   const fetchAllCustomers = async (filter = null) => {
@@ -46,7 +49,7 @@ export default function AllCustomers() {
     }
   };
   const onRefresh = () => {
-    fetchAllCustomers('pending');
+    fetchAllCustomers();
   };
   useEffect(() => {
     const search = (query || '').trim().toLowerCase();
@@ -119,8 +122,33 @@ export default function AllCustomers() {
           <Text className="m-auto text-[#F4F1D6] text-[18px] font-semibold">
             Total Customers: {customers.length}
           </Text>
-          <View className="bg-[#F4F1D6] rounded-lg p-[2%] w-[50%] text-center flex align-middle items-center">
-            <Text className="text-[#775948] font-bold text-lg">PAID</Text>
+          <View className="flex flex-row  justify-between">
+            <>
+              <TouchableOpacity
+                onPressIn={() => setPaidFocused(prev => !prev)}
+                className={`${
+                  paidFocused ? 'bg-[#F4F1D6]' : 'bg-[#775948]'
+                } rounded-lg p-[2%] w-[45%] text-center flex align-middle items-center`}>
+                <Text
+                  className={`${
+                    paidFocused ? 'text-[#775948]' : 'text-[#F4F1D6]'
+                  } font-bold text-lg`}>
+                  PAID
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPressIn={() => setPenddingFocused(prev => !prev)}
+                className={`${
+                  pendingFocused ? 'bg-[#F4F1D6]' : 'bg-[#775948]'
+                } rounded-lg p-[2%] w-[45%] text-center flex align-middle items-center`}>
+                <Text
+                  className={`${
+                    pendingFocused ? 'text-[#775948]' : 'text-[#F4F1D6]'
+                  } font-bold text-lg`}>
+                  PENDING
+                </Text>
+              </TouchableOpacity>
+            </>
           </View>
           <ScrollView
             className=""
