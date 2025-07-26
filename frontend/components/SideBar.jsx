@@ -1,14 +1,16 @@
 import {View, Text, Image, TouchableOpacity} from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {useNavigation} from '@react-navigation/native';
+import {AuthContext} from '../../backend/context/auth';
 
 export default function SideBar() {
   const [toggle, setToggle] = useState(false);
   const navigation = useNavigation();
+  const {removeAuthData} = useContext(AuthContext);
 
   return (
     <View style={{flex: 1}}>
@@ -39,22 +41,7 @@ export default function SideBar() {
               />
             </TouchableOpacity>
           </View>
-          <View className="flex justify-center align-middle items-center">
-            <TouchableOpacity onPress={() => setToggle(true)}>
-              <Image
-                style={{width: wp(9), height: wp(9)}}
-                source={require('../assets/icons/paidList.png')}
-              />
-            </TouchableOpacity>
-          </View>
-          <View className="flex justify-center align-middle items-center">
-            <TouchableOpacity onPress={() => setToggle(true)}>
-              <Image
-                style={{width: wp(9), height: wp(9)}}
-                source={require('../assets/icons/pendingList.png')}
-              />
-            </TouchableOpacity>
-          </View>
+
           <View className="flex justify-center align-middle items-center">
             <TouchableOpacity onPress={() => setToggle(true)}>
               <Image
@@ -71,6 +58,14 @@ export default function SideBar() {
               />
             </TouchableOpacity>
           </View>
+          <View className="flex justify-center align-middle items-center transform rotate-180">
+            <TouchableOpacity onPress={() => setToggle(true)}>
+              <Image
+                style={{width: wp(9), height: wp(9)}}
+                source={require('../assets/icons/Logout.png')}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       ) : (
         <View
@@ -80,8 +75,8 @@ export default function SideBar() {
             height: '100%',
             width: '55%',
           }}
-          className="absolute flex justify-start align-center items-start bg-[#151E25] py-16 px-3 space-y-[39%]">
-          <View className="flex justify-start items-center">
+          className="absolute flex justify-start align-center items-start bg-[#151E25] py-[18%] px-3 space-y-[55%] ">
+          <View className="flex justify-start items-center ">
             <TouchableOpacity
               onPress={() => {
                 setToggle(false);
@@ -117,42 +112,7 @@ export default function SideBar() {
               </Text>
             </TouchableOpacity>
           </View>
-          <View className="flex justify-start items-center">
-            <TouchableOpacity
-              onPress={() => {
-                setToggle(false);
-                navigation.navigate('PaidList');
-              }}
-              className="flex flex-row justify-between items-center align-middle gap-3 px-2">
-              <Image
-                style={{width: wp(9), height: wp(9)}}
-                source={require('../assets/icons/paidList.png')}
-              />
-              <Text
-                style={{fontSize: wp(4.5)}}
-                className="text-[#F4F1D6] font-bold">
-                PAID
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View className="flex justify-start items-center">
-            <TouchableOpacity
-              onPress={() => {
-                setToggle(false);
-                navigation.navigate('PendingList');
-              }}
-              className="flex flex-row justify-between items-center align-middle gap-3 px-2">
-              <Image
-                style={{width: wp(9), height: wp(9)}}
-                source={require('../assets/icons/pendingList.png')}
-              />
-              <Text
-                style={{fontSize: wp(4.5)}}
-                className="text-[#F4F1D6] font-bold">
-                PENDING
-              </Text>
-            </TouchableOpacity>
-          </View>
+
           <View className="flex justify-start items-center">
             <TouchableOpacity
               onPress={() => {
@@ -186,6 +146,26 @@ export default function SideBar() {
                 style={{fontSize: wp(4.5)}}
                 className="text-[#F4F1D6] font-bold">
                 EDIT MESSAGE
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View className="flex justify-start items-center">
+            <TouchableOpacity
+              onPress={async () => {
+                await removeAuthData();
+                setToggle(false);
+                navigation.navigate('LogIn');
+              }}
+              className="flex flex-row justify-between items-center align-middle gap-3 px-2">
+              <Image
+                style={{width: wp(9), height: wp(9)}}
+                className="transform rotate-180"
+                source={require('../assets/icons/Logout.png')}
+              />
+              <Text
+                style={{fontSize: wp(4.5)}}
+                className="text-[#F4F1D6] font-bold">
+                LOGOUT
               </Text>
             </TouchableOpacity>
           </View>

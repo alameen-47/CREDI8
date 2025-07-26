@@ -6,76 +6,100 @@ import {
   Image,
   RefreshControl,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Layout from './Layout';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
+import api from '../../backend/api/api';
+import {AuthContext} from '../../backend/context/auth';
 
-const customerData = [
-  // Add your customer data here
-  {
-    name: 'Salman Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Sharukh Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Salman Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Sharukh Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Salman Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Sharukh Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Salman Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-  {
-    name: 'Sharukh Khan',
-    purchaseDate: '10/03/2024',
-    dueDate: '10/04/2025',
-    amount: '185',
-    paidDate: '10/03/2024',
-  },
-];
+// const customerData = [
+//   // Add your customer data here
+//   {
+//     name: 'Salman Khan',
+//     purchaseDate: '10/03/2024',
+//     dueDate: '10/04/2025',
+//     amount: '185',
+//     paidDate: '10/03/2024',
+//   },
+//   {
+//     name: 'Sharukh Khan',
+//     purchaseDate: '10/03/2024',
+//     dueDate: '10/04/2025',
+//     amount: '185',
+//     paidDate: '10/03/2024',
+//   },
+//   {
+//     name: 'Salman Khan',
+//     purchaseDate: '10/03/2024',
+//     dueDate: '10/04/2025',
+//     amount: '185',
+//     paidDate: '10/03/2024',
+//   },
+//   {
+//     name: 'Sharukh Khan',
+//     purchaseDate: '10/03/2024',
+//     dueDate: '10/04/2025',
+//     amount: '185',
+//     paidDate: '10/03/2024',
+//   },
+//   {
+//     name: 'Salman Khan',
+//     purchaseDate: '10/03/2024',
+//     dueDate: '10/04/2025',
+//     amount: '185',
+//     paidDate: '10/03/2024',
+//   },
+//   {
+//     name: 'Sharukh Khan',
+//     purchaseDate: '10/03/2024',
+//     dueDate: '10/04/2025',
+//     amount: '185',
+//     paidDate: '10/03/2024',
+//   },
+//   {
+//     name: 'Salman Khan',
+//     purchaseDate: '10/03/2024',
+//     dueDate: '10/04/2025',
+//     amount: '185',
+//     paidDate: '10/03/2024',
+//   },
+//   {
+//     name: 'Sharukh Khan',
+//     purchaseDate: '10/03/2024',
+//     dueDate: '10/04/2025',
+//     amount: '185',
+//     paidDate: '10/03/2024',
+//   },
+// ];
 
 export default function PaidList() {
   const [refreshing, setRefreshing] = useState(false);
+  const {auth} = useContext(AuthContext);
+  const userId = auth?.user?._id;
+  const [customerData, setCustomerData] = useState();
+  const fetchPaidCustomer = async () => {
+    try {
+      const res = await api.get(
+        `/api/v1/customer/all-customers?userId=${userId}&paid=true`,
+      );
+      console.log('6666666666666', res.data, '666666666666'
+        
+      );
+      setCustomerData(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchPaidCustomer();
+  }, []);
+  const onRefresh = () => {
+    fetchPaidCustomer();
+  };
 
   return (
     <Layout>
@@ -95,7 +119,11 @@ export default function PaidList() {
             className=" text-center mt-[10%] text-[#F4F1D6]">
             PAID CUSTOMER LIST
           </Text>
-          <ScrollView nestedScrollEnabled={true}>
+          <ScrollView
+            nestedScrollEnabled={true}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
             {/* //CUSTOMER DETAILS */}
             {customerData.map((c, index) => (
               <View key={index} className="">

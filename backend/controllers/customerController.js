@@ -119,10 +119,16 @@ export const EditCustomer = async (req, res) => {
 
 export const FetchAllCustomer = async (req, res) => {
   try {
-    const userId = req.query.userId;
+    const {userId, paid} = req.query;
+
     if (!userId) return res.status(400).json({message: 'User ID is required'});
-    console.log('<<<<<<<<<<<<<<<', userId, '>>>>>>>>>>>');
-    const customers = await customerModel.find({owner: userId});
+
+    const filter = {owner: userId};
+
+    if (paid === 'true') filter.paid = true;
+    else if (paid === 'false') filter.paid = false;
+
+    const customers = await customerModel.find(filter);
     res.status(200).send(customers);
   } catch (error) {
     console.log(Error);

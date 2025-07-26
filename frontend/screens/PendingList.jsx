@@ -17,6 +17,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import api from '../../backend/api/api';
 import {SearchContext} from '../../backend/context/search';
 import {Toast, useToast} from 'react-native-toast-notifications';
+import {AuthContext} from '../../backend/context/auth';
 
 export default function PaidList() {
   const [customer, setCustomer] = useState();
@@ -24,13 +25,17 @@ export default function PaidList() {
   const [refreshing, setRefreshing] = useState(false);
   const {query} = useContext(SearchContext);
   const [loading, setLoading] = useState(false);
+  const {auth} = useContext(AuthContext);
+
+  const userId = auth?.user?._id;
   const toast = useToast();
-  console.log('<<<<<<<<<<<<<<', allCustomer, '>>>>>>>>>>>>>>');
+
   const fetchAllCustomer = async () => {
     try {
       setRefreshing(true);
-      const res = await api.get('api/v1/customer/all-customers');
-      setCustomer(res.data);
+      const res = await api.get(
+        `api/v1/customer/all-customers?userId=${userId}&paid=false`,
+      );
       setAllCustomer(res.data);
     } catch (error) {
       console.log(error);

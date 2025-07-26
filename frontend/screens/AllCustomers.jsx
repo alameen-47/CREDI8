@@ -31,11 +31,12 @@ export default function AllCustomers() {
   const [refreshing, setRefreshing] = useState(false);
 
   const userId = auth?.user?._id;
-  const fetchAllCustomers = async () => {
+  const fetchAllCustomers = async (filter = null) => {
     try {
-      const res = await api.get(
-        `/api/v1/customer/all-customers?userId=${userId}`,
-      );
+      let url = `/api/v1/customer/all-customers?userId=${userId}`;
+      if (filter === 'paid') url += `&paid=true`;
+      else if (filter === 'pending') url += `&paid=false`;
+      const res = await api.get(url);
       setCustomers(res.data);
       setAllCustomers(res.data);
     } catch (error) {
@@ -45,17 +46,14 @@ export default function AllCustomers() {
     }
   };
   const onRefresh = () => {
-    fetchAllCustomers();
+    fetchAllCustomers('pending');
   };
   useEffect(() => {
-    if ((query ?? '').trim() === '') {
-      setCustomers(allcustomers);
-    } else {
-      const filtered = allcustomers.filter(c =>
-        c.custName.toLowerCase().includes(query?.toLowerCase()),
-      );
-      setCustomers(filtered);
-    }
+    const search = (query || '').trim().toLowerCase();
+    const filtered = search
+      ? allcustomers.filter(c => c.custName?.toLowerCase().includes(search))
+      : allcustomers;
+    setCustomers(filtered);
   }, [query, allcustomers]);
 
   const handleSelectedCustomer = c => {
@@ -63,7 +61,7 @@ export default function AllCustomers() {
   };
 
   useEffect(() => {
-    fetchAllCustomers();
+    fetchAllCustomers('pending ');
   }, []);
 
   const handleDelete = customerId => {
@@ -121,7 +119,11 @@ export default function AllCustomers() {
           <Text className="m-auto text-[#F4F1D6] text-[18px] font-semibold">
             Total Customers: {customers.length}
           </Text>
+          <View className="bg-[#F4F1D6] rounded-lg p-[2%] w-[50%] text-center flex align-middle items-center">
+            <Text className="text-[#775948] font-bold text-lg">PAID</Text>
+          </View>
           <ScrollView
+            className=""
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
@@ -135,7 +137,7 @@ export default function AllCustomers() {
                 <TouchableOpacity
                   key={item._id}
                   onPress={() => handleSelectedCustomer(item)}>
-                  <View className="bg-[#D9D9D9] w-[100%] h-[65] rounded-xl mb-2 px-3">
+                  <View className="bg-[#F4F1D6] w-[100%] h-[65] rounded-xl mb-2 px-3">
                     <View className="absolute p-[2%] flex justify-between flex-row gap-1 ">
                       <View className="flex">
                         <Text
@@ -144,11 +146,11 @@ export default function AllCustomers() {
                             {width: wp(40)},
                             {height: hp(2.8)},
                           ]}
-                          className="bg-[#D9D9D9]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
+                          className="bg-[#F4F1D6]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
                           {item.custName}
                         </Text>
                         <View className="flex  flex-row w-[170]">
-                          <View className="bg-[#D9D9D9]  w-[100%]  rounded-xl pl-3 ">
+                          <View className="bg-[#F4F1D6]  w-[100%]  rounded-xl pl-3 ">
                             <Text
                               style={[{fontSize: wp(2.5)}]}
                               className="font-bold text-[#775948] ">
@@ -163,7 +165,7 @@ export default function AllCustomers() {
                         </View>
                       </View>
 
-                      <View className="bg-[#D9D9D9] justify-center align-middle items-center text-center rounded-xl flex ">
+                      <View className="bg-[#F4F1D6] justify-center align-middle items-center text-center rounded-xl flex ">
                         {item.custDueDate ? (
                           <>
                             <Text
@@ -242,7 +244,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-
     padding: 20,
     zIndex: 10, // Ensure the content is above the background
   },
