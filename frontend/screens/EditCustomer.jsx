@@ -33,6 +33,16 @@ export default function EditCustomer({route}) {
   const toast = useToast();
   const [refreshing, setRefreshing] = useState(false);
 
+  const handleAddAmount = (text, sign) => {
+    const num = Number(text);
+    if (sign === 'add') {
+      setCustAmount(prev => prev + num);
+    } else if (sign === 'sub') {
+      setCustAmount(prev => prev - num);
+    }
+    console.log('<<<<<<<<<<<<<<<<', custAmount, '>>>>>>>>>>>>>');
+  };
+  console.log('<<<<<<TYPE<<<<<<<<<<', typeof custAmount, '>>>>>>>TYPE>>>>>>');
   const handleSubmit = async () => {
     try {
       const updatedFields = {_id: customer._id};
@@ -157,12 +167,28 @@ export default function EditCustomer({route}) {
                 <Text className=" text-black bg-[#F5DEB3]  w-auto px-2 rounded-lg  p-1">
                   Previous Amount: {customer?.custAmount} SAR
                 </Text>
-                <TextInput
-                  name="custAmount"
-                  value={customer?.custAmount}
-                  onChangeText={text => setCustAmount(text)}
-                  placeholder="Enter Amount"
-                  className="  bg-white w-auto px-2 rounded-lg  p-1"></TextInput>
+                <View className="flex-row">
+                  <TextInput
+                    className="flex-1 rounded-xl bg-green-500 p-[1%] text-black text-2xl text-center"
+                    placeholder="-"
+                    placeholderTextColor="#000"
+                    value={customer?.custAmount}
+                    onEndEditing={event =>
+                      handleAddAmount(event.nativeEvent.text, 'sub')
+                    }
+                  />
+                  <TextInput
+                    className="flex-1 bg-red-600 rounded-xl p-[1%] text-black text-2xl text-center"
+                    placeholder="+"
+                    placeholderTextColor="#000"
+                    value={customer?.custAmount}
+                    onEndEditing={event =>
+                      handleAddAmount(event.nativeEvent.text, 'add')
+                    }
+                  />
+                </View>
+
+            
               </View>
               <View className="mb-5 flex-col justify-center align-middle  gap-1">
                 <Text
