@@ -1,5 +1,6 @@
 import React, {createContext, useContext, useState} from 'react';
 import api from '../api/api.js';
+import {AuthContext} from './auth.js';
 
 export const SearchContext = createContext();
 
@@ -7,21 +8,20 @@ export const SearchProvider = ({children}) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const {auth} = useContext(AuthContext);
+  const userId = auth?.user?._id;
   const handleSearch = async text => {
-    // console.log('4444444444444444444444 Search query: ', text); // This should print just the string, not an object
-
     setQuery(text);
     setLoading(true);
-
     if (text.length < 1) {
       setResults([]);
       setLoading(false);
       return;
     }
     try {
-      const res = await api.get(`/api/v1/customer/search?query=${text}`);
-      // console.log('Search results:', res.data);
+      const res = await api.get(
+        `/api/v1/customer/search?query=${text}&userId=${userId}`,
+      );
       setResults(res.data);
     } catch (error) {
       console.log('Error Fetching Customers : ', error);

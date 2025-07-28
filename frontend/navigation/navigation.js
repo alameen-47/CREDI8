@@ -25,10 +25,10 @@ import AuthProvider from '../../backend/context/auth.js';
 
 function AppNavigation() {
   return (
-    <SearchProvider>
-      <ToastProvider>
-        <NavigationContainer>
-          <AuthProvider>
+    <ToastProvider>
+      <NavigationContainer>
+        <AuthProvider>
+          <SearchProvider>
             <Stack.Navigator
               screenOptions={{headerShown: false}}
               initialRouteName="GetStarted">
@@ -53,10 +53,10 @@ function AppNavigation() {
               <Stack.Screen name="UserDetails" component={UserDetails} />
               <Stack.Screen name="EditUser" component={EditUser} />
             </Stack.Navigator>
-          </AuthProvider>
-        </NavigationContainer>
-      </ToastProvider>
-    </SearchProvider>
+          </SearchProvider>
+        </AuthProvider>
+      </NavigationContainer>
+    </ToastProvider>
   );
 }
 

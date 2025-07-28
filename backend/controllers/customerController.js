@@ -7,24 +7,21 @@ import {useReducer} from 'react';
 
 export const SearchController = async (req, res) => {
   // Extract the 'query' parameter from the request's query string
-  const {query} = req.query;
-  console.log('Received query:', query);
+  const {query, userId} = req.query;
 
   if (!query) {
     return res.status(400).json({message: 'Search query is required'});
   }
 
   try {
-    console.log('Searching for customers in DB...');
-
     // Search for customers where the name or number matches the query (case-insensitive)
     const result = await customerModel.find({
+      owner: userId,
       $or: [
         {custName: {$regex: query, $options: 'i'}},
         // {custNumber: {$regex: String(query)}},
       ],
     });
-    console.log('Search results:', result); // Log DB response
 
     res.status(200).send(result);
   } catch (error) {
@@ -39,7 +36,6 @@ export const SearchController = async (req, res) => {
 export const AddCustomer = async (req, res) => {
   try {
     const {custName, custNumber, custAmount, custDueDate, userId} = req.body;
-    console.log('%%%%%%%%%>>>>>>>>>>>>', userId, '<<<<<<<<<<%%%%%%%%%');
     if (!custName || !custNumber || !custAmount || !custDueDate) {
       return res.status(400).json({message: 'Please fill in all fields.'});
     }

@@ -3,11 +3,9 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  Image,
   TouchableOpacity,
   Alert,
   RefreshControl,
-  Pressable,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Layout from './Layout';
@@ -56,7 +54,7 @@ export default function AllCustomers() {
   };
 
   useEffect(() => {
-    const search = (query || '').trim().toLowerCase();
+    const search = typeof query === 'string' ? query.trim().toLowerCase() : '';
     const filtered = search
       ? allcustomers.filter(c => c.custName?.toLowerCase().includes(search))
       : allcustomers;
