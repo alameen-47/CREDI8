@@ -31,7 +31,7 @@ export default function AllCustomers() {
   const [allcustomers, setAllCustomers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [paidFocused, setPaidFocused] = useState(false);
-  const [pendingFocused, setPenddingFocused] = useState(false);
+  const [pendingFocused, setPendingFocused] = useState(false);
 
   const userId = auth?.user?._id;
   const fetchAllCustomers = async (filter = null) => {
@@ -51,6 +51,8 @@ export default function AllCustomers() {
 
   const onRefresh = () => {
     fetchAllCustomers();
+    setPaidFocused(false);
+    setPendingFocused(false);
   };
 
   useEffect(() => {
@@ -129,7 +131,7 @@ export default function AllCustomers() {
               <TouchableOpacity
                 onPressIn={() => {
                   setPaidFocused(prev => !prev);
-                  setPenddingFocused(false);
+                  setPendingFocused(false);
                   fetchAllCustomers('paid');
                 }}
                 className={`${
@@ -144,7 +146,7 @@ export default function AllCustomers() {
               </TouchableOpacity>
               <TouchableOpacity
                 onPressIn={() => {
-                  setPenddingFocused(prev => !prev);
+                  setPendingFocused(prev => !prev);
                   setPaidFocused(false);
                   fetchAllCustomers('pending');
                 }}
