@@ -6,14 +6,20 @@ import {
   TouchableOpacity,
   Alert,
   RefreshControl,
+  Modal,
 } from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import Layout from './Layout';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
 import LinearGradient from 'react-native-linear-gradient';
 import api from '../../backend/api/api';
 import {useNavigation} from '@react-navigation/native';
@@ -30,8 +36,18 @@ export default function AllCustomers() {
   const [refreshing, setRefreshing] = useState(false);
   const [paidFocused, setPaidFocused] = useState(false);
   const [pendingFocused, setPendingFocused] = useState(false);
-
+  const [popUp, setPopUp] = useState(false);
   const userId = auth?.user?._id;
+  const [selectedCustomerId, setSelectedCustomerId] = useState(null);
+
+  // const handleSelectedCustomer = item => {
+  //   const menu = menuRefs.current[item._id];
+
+  //   if (menu) {
+  //     menu.open();
+  //   }
+  // };
+
   const fetchAllCustomers = async (filter = null) => {
     try {
       let url = `/api/v1/customer/all-customers?userId=${userId}`;
@@ -61,9 +77,9 @@ export default function AllCustomers() {
     setCustomers(filtered);
   }, [query, allcustomers]);
 
-  const handleSelectedCustomer = c => {
-    navigation.navigate('EditCustomer', {customer: c});
-  };
+  // const handleSelectedCustomer = c => {
+  //   navigation.navigate('EditCustomer', {customer: c});
+  // };
 
   useEffect(() => {
     fetchAllCustomers('pending ');
@@ -165,97 +181,115 @@ export default function AllCustomers() {
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-            <SwipeListView
-              data={customers}
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              keyExtractor={item => item._id}
-              nestedScrollEnabled={true}
-              renderItem={({item}) => (
-                <TouchableOpacity
-                  key={item._id}
-                  onPress={() => handleSelectedCustomer(item)}>
-                  <View className="bg-[#F4F1D6] w-[100%] h-[65] rounded-xl mb-2 px-3">
-                    <View className="absolute p-[2%] flex justify-between flex-row gap-1 ">
-                      <View className="flex">
-                        <Text
-                          style={[
-                            {fontSize: wp(5)},
-                            {width: wp(40)},
-                            {height: hp(2.8)},
-                          ]}
-                          className="bg-[#F4F1D6]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
-                          {item.custName}
-                        </Text>
-                        <View className="flex  flex-row w-[170]">
-                          <View className="bg-[#F4F1D6]  w-[100%]  rounded-xl pl-3 ">
+            <>
+              <SwipeListView
+                data={customers}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                keyExtractor={item => item._id}
+                nestedScrollEnabled={true}
+                renderItem={({item}) => (
+                
+                    <TouchableOpacity
+                      key={item._id}
+                      onPress={() => {
+                        setSelectedCustomerId(prev =>
+                          prev === item._id ? null : item._id,
+                        );
+                        // handleSelectedCustomer(item);
+                      }}>
+                      <View className="bg-[#F4F1D6] w-[100%] h-[100] rounded-xl mb-2 px-3">
+                        <View className="absolute p-[2%] flex justify-between flex-row gap-1 ">
+                          <View className="flex">
                             <Text
-                              style={[{fontSize: wp(2.5)}]}
-                              className="font-bold text-[#775948] ">
-                              Whatsapp Number:
+                              style={[
+                                {fontSize: wp(5)},
+                                {width: wp(40)},
+                                {height: hp(2.8)},
+                              ]}
+                              className="bg-[#F4F1D6]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
+                              {item.custName}
                             </Text>
-                            <Text
-                              style={[{fontSize: wp(3)}]}
-                              className="font-bold text-[#775948 ">
-                              {item.custNumber}
-                            </Text>
+                            <View className="flex  flex-row w-[170]">
+                              <View className="bg-[#F4F1D6]  w-[100%]  rounded-xl pl-3 ">
+                                <Text
+                                  style={[{fontSize: wp(2.5)}]}
+                                  className="font-bold text-[#775948] ">
+                                  Whatsapp Number:
+                                </Text>
+                                <Text
+                                  style={[{fontSize: wp(3)}]}
+                                  className="font-bold text-[#775948 ">
+                                  {item.custNumber}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+
+                          <View className="bg-[#F4F1D6] justify-center align-middle items-center text-center rounded-xl flex ">
+                            {item.custDueDate ? (
+                              <>
+                                <Text
+                                  style={[{fontSize: wp(3.5)}]}
+                                  className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
+                                  SAR: {item.custAmount} /-
+                                </Text>
+                                <Text
+                                  style={[{fontSize: wp(3)}]}
+                                  className="font-bold text-[#775948 text-center underline">
+                                  Due Date: {'\n'}
+                                  {item.custDueDate
+                                    .split('T')[0]
+                                    .split('-')
+                                    .reverse()
+                                    .join('-')}
+                                </Text>
+                              </>
+                            ) : (
+                              <Text
+                                style={[{fontSize: wp(5)}]}
+                                className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
+                                ⟦ PAID ⟧
+                              </Text>
+                            )}
                           </View>
                         </View>
                       </View>
-
-                      <View className="bg-[#F4F1D6] justify-center align-middle items-center text-center rounded-xl flex ">
-                        {item.custDueDate ? (
-                          <>
-                            <Text
-                              style={[{fontSize: wp(3.5)}]}
-                              className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
-                              SAR: {item.custAmount} /-
-                            </Text>
-                            <Text
-                              style={[{fontSize: wp(3)}]}
-                              className="font-bold text-[#775948 text-center underline">
-                              Due Date: {'\n'}
-                              {item.custDueDate
-                                .split('T')[0]
-                                .split('-')
-                                .reverse()
-                                .join('-')}
-                            </Text>
-                          </>
-                        ) : (
-                          <Text
-                            style={[{fontSize: wp(5)}]}
-                            className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
-                            ⟦ PAID ⟧
-                          </Text>
-                        )}
-                      </View>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              )}
-              renderHiddenItem={({item}) => (
-                <TouchableOpacity
-                  className="rounded-xl"
-                  onPress={() => handleDelete(item._id)}
-                  style={{
-                    backgroundColor: 'red',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    width: 75,
-                    height: '89%',
-                    position: 'absolute',
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                  }}>
-                  <Text className=" font-semibold text-lg text-white">
-                    Delete
-                  </Text>
-                </TouchableOpacity>
-              )}
-              rightOpenValue={-75} // Swipe left to reveal the delete button
-            />
+                      {selectedCustomerId === item._id && (
+                        <View
+                          key={item._id}
+                          style={[{width: wp(100)}, {height: hp(500)}]}
+                          className="POPUP_SCREEN bg-green-600 z-50 absolute">
+                          <Text className="bg-red-500 w-full ">POPUP</Text>
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                    
+                  
+                )}
+                renderHiddenItem={({item}) => (
+                  <TouchableOpacity
+                    className="rounded-xl"
+                    onPress={() => handleDelete(item._id)}
+                    style={{
+                      backgroundColor: 'red',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: 75,
+                      height: '89%',
+                      position: 'absolute',
+                      right: 0,
+                      top: 0,
+                      bottom: 0,
+                    }}>
+                    <Text className=" font-semibold text-lg text-white">
+                      Delete
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                rightOpenValue={-75} // Swipe left to reveal the delete button
+              />
+            </>
           </ScrollView>
         </View>
       </View>

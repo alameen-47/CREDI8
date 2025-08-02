@@ -22,6 +22,7 @@ import UserDetails from '../screens/UserDetails.jsx';
 import EditUser from '../screens/EditUser.jsx';
 import {SearchProvider} from '../../backend/context/search.js';
 import AuthProvider from '../../backend/context/auth.js';
+import { MenuProvider } from 'react-native-popup-menu';
 
 function AppNavigation() {
   return (
@@ -29,30 +30,35 @@ function AppNavigation() {
       <NavigationContainer>
         <AuthProvider>
           <SearchProvider>
-            <Stack.Navigator
-              screenOptions={{headerShown: false}}
-              initialRouteName="GetStarted">
-              <Stack.Screen name="GetStarted" component={GetStartedScreen} />
-              <Stack.Screen name="LogIn" component={LoginScreen} />
-              <Stack.Screen name="SignUp" component={SignUpScreen} />
-              <Stack.Screen
-                name="ResetPassword"
-                component={ForgotPasswordScreen}
-              />
-              <Stack.Screen name="AddCustomer" component={AddCustomerScreen} />
-              <Stack.Screen
-                name="CustomerList"
-                component={CustomerListScreen}
-              />
-              <Stack.Screen name="HomeScreen" component={HomeScreen} />
-              <Stack.Screen name="EditCustomer" component={EditCustomer} />
-              <Stack.Screen name="PaidList" component={PaidList} />
-              <Stack.Screen name="PendingList" component={PendingList} />
-              <Stack.Screen name="AllCustomers" component={AllCustomers} />
-              <Stack.Screen name="EditMessage" component={EditMessage} />
-              <Stack.Screen name="UserDetails" component={UserDetails} />
-              <Stack.Screen name="EditUser" component={EditUser} />
-            </Stack.Navigator>
+            <MenuProvider>
+              <Stack.Navigator
+                screenOptions={{headerShown: false}}
+                initialRouteName="GetStarted">
+                <Stack.Screen name="GetStarted" component={GetStartedScreen} />
+                <Stack.Screen name="LogIn" component={LoginScreen} />
+                <Stack.Screen name="SignUp" component={SignUpScreen} />
+                <Stack.Screen
+                  name="ResetPassword"
+                  component={ForgotPasswordScreen}
+                />
+                <Stack.Screen
+                  name="AddCustomer"
+                  component={AddCustomerScreen}
+                />
+                <Stack.Screen
+                  name="CustomerList"
+                  component={CustomerListScreen}
+                />
+                <Stack.Screen name="HomeScreen" component={HomeScreen} />
+                <Stack.Screen name="EditCustomer" component={EditCustomer} />
+                <Stack.Screen name="PaidList" component={PaidList} />
+                <Stack.Screen name="PendingList" component={PendingList} />
+                <Stack.Screen name="AllCustomers" component={AllCustomers} />
+                <Stack.Screen name="EditMessage" component={EditMessage} />
+                <Stack.Screen name="UserDetails" component={UserDetails} />
+                <Stack.Screen name="EditUser" component={EditUser} />
+              </Stack.Navigator>
+            </MenuProvider>
           </SearchProvider>
         </AuthProvider>
       </NavigationContainer>
