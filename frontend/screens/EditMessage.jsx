@@ -29,8 +29,7 @@ export default function EditMessage() {
   const [existingMessage, setExistingMessage] = useState('');
   const [existingDate, setExistingDate] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  console.log('$$$$$$$$$$$', message, '$$$$$$$$$$$$$');
-  console.log('$$$$$$$$$$$', scheduledAt, '$$$$$$$$$$$$$');
+
 
   const userId = auth?.user?._id;
   const createScheduledMessage = async (message, scheduledAt) => {
@@ -46,7 +45,7 @@ export default function EditMessage() {
         userId,
       });
       toast.show('Messsage SET and Scheduled Successfully ');
-      console.log('Message Created Succesfully', res.data);
+      // console.log('Message Created Succesfully', res.data);
     } catch (error) {
       console.log('Error Creating Message', error);
     }
@@ -84,8 +83,8 @@ export default function EditMessage() {
           year: 'numeric',
         }),
       );
-      console.log('Message:', message);
-      console.log('Scheduled Date:', scheduledAt);
+      // console.log('Message:', message);
+      // console.log('Scheduled Date:', scheduledAt);
     } catch (error) {
       console.log('Error Getting Message', error);
     }

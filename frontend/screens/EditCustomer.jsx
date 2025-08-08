@@ -40,7 +40,7 @@ export default function EditCustomer({route}) {
     } else if (sign === 'sub') {
       setCustAmount(prev => prev - num);
     }
-    console.log('<<<<<<<<<<<<<<<<', custAmount, '>>>>>>>>>>>>>');
+    // console.log('<<<<<<<<<<<<<<<<', custAmount, '>>>>>>>>>>>>>');
   };
 
   const handleSubmit = async () => {
@@ -58,7 +58,7 @@ export default function EditCustomer({route}) {
         toast.show('No Changes Made !!!');
         return;
       }
-      console.log('**************Editing DATA************', updatedFields);
+      // console.log('**************Editing DATA************', updatedFields);
       const res = await api.put(
         '/api/v1/customer/edit-customer',
         updatedFields,

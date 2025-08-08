@@ -25,7 +25,6 @@ export default function UserDetails() {
   const fetchUser = async () => {
     try {
       const res = await api.get(`/api/v1/auth/user/${auth?.user._id}`);
-      console.log(res?.data, '>>>>>>>>>>>>>>>>');
       setUser(res?.data?.user);
     } catch (error) {
       console.log(error);

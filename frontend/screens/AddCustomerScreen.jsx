@@ -30,10 +30,10 @@ export default function AddCustomerScreen() {
   const [custNumber, setCustNumber] = useState('');
   const [custAmount, setCustAmount] = useState('');
   const toast = useToast();
-  console.log('----===------ ', auth, '------===----');
-  console.log('---------- ', userId, '----------');
+  // console.log('----===------ ', auth, '------===----');
+  // console.log('---------- ', userId, '----------');
   const handleSubmit = async () => {
-    console.log('AddCustomer Function called');
+    // console.log('AddCustomer Function called');
 
     try {
       // const res = await api.post('/api/v1/customer/add-customer');

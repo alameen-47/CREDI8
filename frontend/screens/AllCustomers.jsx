@@ -54,22 +54,15 @@ export default function AllCustomers() {
     } else if (sign === 'sub') {
       setCustAmount(prev => prev - num);
     }
-    console.log('<<<<<<<<<<<<<<<<', custAmount, '>>>>>>>>>>>>>');
   };
-  console.log(
-    '************** current DATA************',
-    custAmount,
-    selectedCustId,
-  );
+
   const handleSubmit = async () => {
     try {
       const payload = {
         _id: selectedCustId,
         custAmount: custAmount,
       };
-      console.log('************** BEFOR API SEND************', payload);
       const res = await api.put('/api/v1/customer/edit-customer', payload);
-      console.log('**************sending DATA************', custAmount);
 
       if (res && res.data.success) {
         toast.show('Customer Details Updated Succesfully');

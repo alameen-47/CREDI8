@@ -43,11 +43,11 @@ const AuthProvider = ({children}) => {
             token: parseData.token,
             // userID:parseData.
           });
-          console.log(
-            '------PARSED DATA------',
-            parseData,
-            '------PARSED DATA------',
-          );
+          // console.log(
+          //   '------PARSED DATA------',
+          //   parseData,
+          //   '------PARSED DATA------',
+          // );
           // Redirect to Home screen if user is logged in
           navigation.navigate('HomeScreen');
         } else {

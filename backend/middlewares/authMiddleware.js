@@ -10,10 +10,10 @@ export const authMiddleware = async (req, res, next) => {
     // if (!user) {
     //   return res.status(401).json({error: 'User not found'});
     // }
-    console.log(
-      'Middleware is verifying token with Secret:',
-      process.env.JWT_SECRET,
-    );
+    // console.log(
+    //   'Middleware is verifying token with Secret:',
+    //   process.env.JWT_SECRET,
+    // );
 
     next();
   } catch (error) {

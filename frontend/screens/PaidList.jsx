@@ -86,9 +86,7 @@ export default function PaidList() {
       const res = await api.get(
         `/api/v1/customer/all-customers?userId=${userId}&paid=true`,
       );
-      console.log('6666666666666', res.data, '666666666666'
-        
-      );
+     
       setCustomerData(res.data);
     } catch (error) {
       console.log(error);

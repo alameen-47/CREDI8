@@ -73,15 +73,15 @@ export const AddCustomer = async (req, res) => {
 export const EditCustomer = async (req, res) => {
   try {
     const {_id, custAmount, custName, custDueDate, custNumber} = req.body;
-    console.log(
-      'RECIEVED DATA',
-      _id,
-      custAmount,
-      custName,
-      custDueDate,
-      custNumber,
-      '+++++++++++++',
-    );
+    // console.log(
+    //   'RECIEVED DATA',
+    //   _id,
+    //   custAmount,
+    //   custName,
+    //   custDueDate,
+    //   custNumber,
+    //   '+++++++++++++',
+    // );
     if (!_id) {
       return res.status(404).send({
         success: false,
@@ -327,7 +327,7 @@ export const getMesssge = async (req, res) => {
         .send({success: false, message: 'No messages found'});
     }
     res.status(200).send(message);
-    console.log(`]]]]]]]]]]]]${message}[[[[[[[[[]]]]]]]]]`);
+    // console.log(`]]]]]]]]]]]]${message}[[[[[[[[[]]]]]]]]]`);
   } catch (error) {
     res.status(404).send({
       success: false,

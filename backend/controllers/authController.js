@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 dotenv.config(); // Load environment variables
 
 export const register = async (req, res) => {
-  console.log('Register function called');
+  // console.log('Register function called');
   try {
     // Extract user data from the request body
     const {name, email, password, phone} = req.body;
@@ -114,7 +114,7 @@ export const login = async (req, res) => {
     });
     if (res.data) {
       await AsyncStorage.setItem('user', JSON.stringify(res.data)); // Save user data
-      console.log('User logged in and stored:', res.data);
+      // console.log('User logged in and stored:', res.data);
     }
   } catch (error) {
     console.error(error);
@@ -171,7 +171,7 @@ export const forgotPassword = async (req, res) => {
           .status(500)
           .json({success: false, message: 'Error sending email'});
       }
-      console.log(info); // Log the information about the sent email
+      // console.log(info); // Log the information about the sent email
 
       return res
         .status(200)
