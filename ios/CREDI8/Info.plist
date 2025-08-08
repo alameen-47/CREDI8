@@ -51,6 +51,9 @@
 	<array>
 		<string>Arial Rounded MT Bold.ttf</string>
 		<string>Poppins-Medium.ttf</string>
+		<string>Mitr Bold.ttf</string>
+		<string>antfill.ttf</string>
+		<string>antoutline.ttf</string>
 	</array>
 </dict>
 </plist>

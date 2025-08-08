@@ -73,21 +73,32 @@ export const AddCustomer = async (req, res) => {
 export const EditCustomer = async (req, res) => {
   try {
     const {_id, custAmount, custName, custDueDate, custNumber} = req.body;
-
+    console.log(
+      'RECIEVED DATA',
+      _id,
+      custAmount,
+      custName,
+      custDueDate,
+      custNumber,
+      '+++++++++++++',
+    );
     if (!_id) {
       return res.status(404).send({
         success: false,
         message: 'No Customer Details Found in this criteria',
       });
     }
+
+    const updateFields = {};
+
+    if (custName !== undefined) updateFields.custName = custName;
+    if (custAmount !== undefined) updateFields.custAmount = custAmount;
+    if (custNumber !== undefined) updateFields.custNumber = custNumber;
+    if (custDueDate !== undefined) updateFields.custDueDate = custDueDate;
+
     const updatedCustomer = await customerModel.findByIdAndUpdate(
       _id,
-      {
-        custName,
-        custAmount,
-        custNumber,
-        custDueDate,
-      },
+      {$set: updateFields},
       {new: true, runValidators: true},
     );
 

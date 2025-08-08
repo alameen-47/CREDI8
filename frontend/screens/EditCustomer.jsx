@@ -42,7 +42,7 @@ export default function EditCustomer({route}) {
     }
     console.log('<<<<<<<<<<<<<<<<', custAmount, '>>>>>>>>>>>>>');
   };
-  console.log('<<<<<<TYPE<<<<<<<<<<', typeof custAmount, '>>>>>>>TYPE>>>>>>');
+
   const handleSubmit = async () => {
     try {
       const updatedFields = {_id: customer._id};
@@ -187,8 +187,6 @@ export default function EditCustomer({route}) {
                     }
                   />
                 </View>
-
-            
               </View>
               <View className="mb-5 flex-col justify-center align-middle  gap-1">
                 <Text

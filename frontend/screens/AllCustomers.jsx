@@ -7,6 +7,9 @@ import {
   Alert,
   RefreshControl,
   Modal,
+  TextInput,
+  Image,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import Layout from './Layout';
@@ -26,9 +29,11 @@ import {useNavigation} from '@react-navigation/native';
 import {SwipeListView} from 'react-native-swipe-list-view';
 import {SearchContext} from '../../backend/context/search';
 import {AuthContext} from '../../backend/context/auth';
+import {useToast} from 'react-native-toast-notifications';
 
 export default function AllCustomers() {
   const {auth} = useContext(AuthContext);
+  const toast = useToast();
   const {query} = useContext(SearchContext);
   const navigation = useNavigation();
   const [customers, setCustomers] = useState('');
@@ -36,17 +41,51 @@ export default function AllCustomers() {
   const [refreshing, setRefreshing] = useState(false);
   const [paidFocused, setPaidFocused] = useState(false);
   const [pendingFocused, setPendingFocused] = useState(false);
-  const [popUp, setPopUp] = useState(false);
+  const [popUp, setPopUp] = useState(true);
   const userId = auth?.user?._id;
-  const [selectedCustomerId, setSelectedCustomerId] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [custAmount, setCustAmount] = useState();
+  const [selectedCustId, setSelectedCustId] = useState();
 
-  // const handleSelectedCustomer = item => {
-  //   const menu = menuRefs.current[item._id];
+  const handleAddAmount = (text, sign) => {
+    const num = Number(text);
+    if (sign === 'add') {
+      setCustAmount(prev => prev + num);
+    } else if (sign === 'sub') {
+      setCustAmount(prev => prev - num);
+    }
+    console.log('<<<<<<<<<<<<<<<<', custAmount, '>>>>>>>>>>>>>');
+  };
+  console.log(
+    '************** current DATA************',
+    custAmount,
+    selectedCustId,
+  );
+  const handleSubmit = async () => {
+    try {
+      const payload = {
+        _id: selectedCustId,
+        custAmount: custAmount,
+      };
+      console.log('************** BEFOR API SEND************', payload);
+      const res = await api.put('/api/v1/customer/edit-customer', payload);
+      console.log('**************sending DATA************', custAmount);
 
-  //   if (menu) {
-  //     menu.open();
-  //   }
-  // };
+      if (res && res.data.success) {
+        toast.show('Customer Details Updated Succesfully');
+        navigation.navigate('AllCustomers');
+      }
+    } catch (error) {
+      console.log(error);
+      toast.show('Something Went Wrong!!');
+    }
+  };
+  useEffect(() => {
+    if (selectedCustomer?.custAmount !== undefined) {
+      setCustAmount(selectedCustomer.custAmount);
+      setSelectedCustId(selectedCustomer._id);
+    }
+  }, [selectedCustomer]);
 
   const fetchAllCustomers = async (filter = null) => {
     try {
@@ -129,6 +168,85 @@ export default function AllCustomers() {
           style={{flex: 1, borderRadius: 15}}
           className="opacity-70 "
         />
+        <Modal
+          visible={popUp && selectedCustomer !== null}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setPopUp(false)}>
+          <TouchableWithoutFeedback onPress={() => setPopUp(false)}>
+            <View
+              key={selectedCustomer}
+              className="POPUP_SCREEN bg-gray-100 rounded-xl z-50 flex top-[40%] left-[18%] justify-center align-middle items-center m-auto absolute "
+              style={[{width: wp(77)}, {height: hp(25)}]}>
+              <Text className="text-lg font-semibold  text-black">
+                Modify The{' '}
+                <Text className="text-[#775948]">
+                  {selectedCustomer?.custName}
+                </Text>
+                's Due Amount
+              </Text>
+              <Text className="bg-gray-300 w-full font-bold text-lg">
+                Previous Balance - {selectedCustomer?.custAmount}
+              </Text>
+              <View
+                className="
+              flex flex-row gap-6">
+                <View className="bg-green-500 border rounded-xl flex flex-row justify-center align-middle items-center">
+                  <Image
+                    style={[{width: wp(10)}, {height: hp(5)}]}
+                    className="left-[5%]"
+                    alt=""
+                    resizeMode="contain"
+                    source={require('../assets/icons/minus.png')}
+                  />
+                  <TextInput
+                    style={[{width: wp(24)}, {height: hp(7), fontSize: hp(4)}]}
+                    className=" rounded-xl"
+                    // placeholder="+"
+                    placeholderTextColor={'black'}
+                    keyboardType="numeric"
+                    value={selectedCustomer?.custAmount}
+                    onEndEditing={event =>
+                      handleAddAmount(event.nativeEvent.text, 'sub')
+                    }
+                  />
+                </View>
+
+                <View className="bg-red-500 border rounded-xl flex flex-row justify-center align-middle items-center">
+                  <Image
+                    style={[{width: wp(9)}, {height: hp(5)}]}
+                    className="left-[5%]"
+                    alt=""
+                    resizeMode="contain"
+                    source={require('../assets/icons/plus.png')}
+                  />
+                  <TextInput
+                    style={[{width: wp(24)}, {height: hp(7), fontSize: hp(4)}]}
+                    className="  rounded-xl"
+                    // placeholder="+"
+                    keyboardType="numeric"
+                    placeholderTextColor={'black'}
+                    value={selectedCustomer?.custAmount}
+                    onEndEditing={event =>
+                      handleAddAmount(event.nativeEvent.text, 'add')
+                    }
+                  />
+                </View>
+              </View>
+              <TouchableOpacity
+                onPress={() => {
+                  // handleAddCustomerDueAmount();
+                  handleSubmit();
+                }}
+                style={[{width: wp(30)}, {height: hp(5)}]}
+                className="bg-[#113051] flex m-2 justify-center align-middle items-center text-center border rounded-xl">
+                <Text className="font-bold text-[#D9D9D9] font-serif text-center text-lg flex px-2 ">
+                  UPDATE
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
         <View
           style={styles.contentContainer}
           className="absolute z-50 opacity-100 w-[100%] h-[100%] space-y-4">
@@ -189,83 +307,71 @@ export default function AllCustomers() {
                 keyExtractor={item => item._id}
                 nestedScrollEnabled={true}
                 renderItem={({item}) => (
-                
-                    <TouchableOpacity
-                      key={item._id}
-                      onPress={() => {
-                        setSelectedCustomerId(prev =>
-                          prev === item._id ? null : item._id,
-                        );
-                        // handleSelectedCustomer(item);
-                      }}>
-                      <View className="bg-[#F4F1D6] w-[100%] h-[100] rounded-xl mb-2 px-3">
-                        <View className="absolute p-[2%] flex justify-between flex-row gap-1 ">
-                          <View className="flex">
-                            <Text
-                              style={[
-                                {fontSize: wp(5)},
-                                {width: wp(40)},
-                                {height: hp(2.8)},
-                              ]}
-                              className="bg-[#F4F1D6]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
-                              {item.custName}
-                            </Text>
-                            <View className="flex  flex-row w-[170]">
-                              <View className="bg-[#F4F1D6]  w-[100%]  rounded-xl pl-3 ">
-                                <Text
-                                  style={[{fontSize: wp(2.5)}]}
-                                  className="font-bold text-[#775948] ">
-                                  Whatsapp Number:
-                                </Text>
-                                <Text
-                                  style={[{fontSize: wp(3)}]}
-                                  className="font-bold text-[#775948 ">
-                                  {item.custNumber}
-                                </Text>
-                              </View>
+                  <TouchableOpacity
+                    key={item._id}
+                    onPress={() => {
+                      setSelectedCustomer(prev =>
+                        prev === item ? null : item,
+                      );
+                      setPopUp(true);
+                    }}>
+                    <View className="bg-[#F4F1D6] w-[100%] h-[100] rounded-xl mb-2 px-3">
+                      <View className="absolute p-[2%] flex justify-between flex-row gap-1 ">
+                        <View className="flex">
+                          <Text
+                            style={[
+                              {fontSize: wp(5)},
+                              {width: wp(40)},
+                              {height: hp(2.8)},
+                            ]}
+                            className="bg-[#F4F1D6]   rounded-xl font-bold text-[#775948] mb-1 pl-2">
+                            {item.custName}
+                          </Text>
+                          <View className="flex  flex-row w-[170]">
+                            <View className="bg-[#F4F1D6]  w-[100%]  rounded-xl pl-3 ">
+                              <Text
+                                style={[{fontSize: wp(2.5)}]}
+                                className="font-bold text-[#775948] ">
+                                Whatsapp Number:
+                              </Text>
+                              <Text
+                                style={[{fontSize: wp(3)}]}
+                                className="font-bold text-[#775948 ">
+                                {item.custNumber}
+                              </Text>
                             </View>
                           </View>
-
-                          <View className="bg-[#F4F1D6] justify-center align-middle items-center text-center rounded-xl flex ">
-                            {item.custDueDate ? (
-                              <>
-                                <Text
-                                  style={[{fontSize: wp(3.5)}]}
-                                  className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
-                                  SAR: {item.custAmount} /-
-                                </Text>
-                                <Text
-                                  style={[{fontSize: wp(3)}]}
-                                  className="font-bold text-[#775948 text-center underline">
-                                  Due Date: {'\n'}
-                                  {item.custDueDate
-                                    .split('T')[0]
-                                    .split('-')
-                                    .reverse()
-                                    .join('-')}
-                                </Text>
-                              </>
-                            ) : (
+                        </View>
+                        <View className="bg-[#F4F1D6] justify-center align-middle items-center text-center rounded-xl flex ">
+                          {item.custDueDate ? (
+                            <>
                               <Text
-                                style={[{fontSize: wp(5)}]}
+                                style={[{fontSize: wp(3.5)}]}
                                 className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
-                                ⟦ PAID ⟧
+                                SAR: {item.custAmount} /-
                               </Text>
-                            )}
-                          </View>
+                              <Text
+                                style={[{fontSize: wp(3)}]}
+                                className="font-bold text-[#775948 text-center underline">
+                                Due Date: {'\n'}
+                                {item.custDueDate
+                                  .split('T')[0]
+                                  .split('-')
+                                  .reverse()
+                                  .join('-')}
+                              </Text>
+                            </>
+                          ) : (
+                            <Text
+                              style={[{fontSize: wp(5)}]}
+                              className="text-[#775948] text-center font-extrabold w-auto h-auto t  ">
+                              ⟦ PAID ⟧
+                            </Text>
+                          )}
                         </View>
                       </View>
-                      {selectedCustomerId === item._id && (
-                        <View
-                          key={item._id}
-                          style={[{width: wp(100)}, {height: hp(500)}]}
-                          className="POPUP_SCREEN bg-green-600 z-50 absolute">
-                          <Text className="bg-red-500 w-full ">POPUP</Text>
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                    
-                  
+                    </View>
+                  </TouchableOpacity>
                 )}
                 renderHiddenItem={({item}) => (
                   <TouchableOpacity
