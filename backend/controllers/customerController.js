@@ -73,15 +73,7 @@ export const AddCustomer = async (req, res) => {
 export const EditCustomer = async (req, res) => {
   try {
     const {_id, custAmount, custName, custDueDate, custNumber} = req.body;
-    // console.log(
-    //   'RECIEVED DATA',
-    //   _id,
-    //   custAmount,
-    //   custName,
-    //   custDueDate,
-    //   custNumber,
-    //   '+++++++++++++',
-    // );
+
     if (!_id) {
       return res.status(404).send({
         success: false,
@@ -169,10 +161,11 @@ export const DeleteCustomer = async (req, res) => {
 //WHATSAPP MESSAGE CONTROLLER
 const client = twilio(process.env.TWILIO_SSID, process.env.TWILIO_AUTH_TOKEN);
 export const sendBulkWhatsappMessages = async message => {
-  const {messageBody} = message; // The message body to be sent
+  const {messageBody} = message; // opThe message body to be sent
 
   try {
-    const customers = await customerModel.find();
+    const filter = {owner: userId};
+    const customers = await customerModel.find(filter);
 
     if (!customers.length) {
       return res.status(400).json({

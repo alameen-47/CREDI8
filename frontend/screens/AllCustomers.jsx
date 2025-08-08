@@ -155,6 +155,7 @@ export default function AllCustomers() {
     try {
       const res = await api.post('/api/v1/customer/send-whatsapp-messages', {
         message,
+        userId,
       });
       if (res & res.data.success) {
         toast.show('Message Sent to All Successfully!!');
@@ -167,7 +168,7 @@ export default function AllCustomers() {
   const callCustomers = async () => {
     setLoading(true);
     try {
-      const res = await api.post('/api/v1/customer/make-call');
+      const res = await api.post('/api/v1/customer/make-call', userId);
       if (res.status.success) {
         toast.show('Call Made to All Successfully!!');
       }
