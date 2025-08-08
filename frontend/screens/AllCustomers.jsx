@@ -40,7 +40,7 @@ export default function AllCustomers() {
   const [allcustomers, setAllCustomers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [paidFocused, setPaidFocused] = useState(false);
-  const [pendingFocused, setPendingFocused] = useState(false);
+  const [pendingFocused, setPendingFocused] = useState(true);
   const [popUp, setPopUp] = useState(true);
   const userId = auth?.user?._id;
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -150,7 +150,32 @@ export default function AllCustomers() {
       ],
     );
   };
-
+  const sendMessages = async () => {
+    setLoading(true);
+    try {
+      const res = await api.post('/api/v1/customer/send-whatsapp-messages', {
+        message,
+      });
+      if (res & res.data.success) {
+        toast.show('Message Sent to All Successfully!!');
+      }
+    } catch (error) {
+      toast.show(`Something went wrong!!! ${error.message} `);
+    }
+    setLoading(false);
+  };
+  const callCustomers = async () => {
+    setLoading(true);
+    try {
+      const res = await api.post('/api/v1/customer/make-call');
+      if (res.status.success) {
+        toast.show('Call Made to All Successfully!!');
+      }
+    } catch (error) {
+      toast.show(`Something went wrong !!! ${error.message}`);
+    }
+    setLoading(false);
+  };
   return (
     <Layout>
       <View style={{...styles.glassEffect, borderRadius: 15}}>
@@ -287,6 +312,32 @@ export default function AllCustomers() {
               </TouchableOpacity>
             </>
           </View>
+          {pendingFocused && (
+            <View
+              style={[{height: hp(5)}, {width: wp(67)}]}
+              className="SEND_ICONS flex flex-row flex-end justify-between items-center align-middle space-x-2">
+              <TouchableOpacity
+                className="bg-[#F4F1D6] rounded-lg flex justify-center align-middlej items-center"
+                style={[{height: hp(5)}, {width: wp(30)}]}>
+                <Image
+                  resizeMode="contain"
+                  source={require('../assets/icons/call.png')}
+                  alt=""
+                  style={[{height: hp(3)}, {width: wp(8)}]}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="bg-[#F4F1D6]  rounded-lg flex justify-center align-middlej items-center"
+                style={[{height: hp(5)}, {width: wp(30)}]}>
+                <Image
+                  resizeMode="contain"
+                  source={require('../assets/icons/whatsapp.png')}
+                  style={[{height: hp(3)}, {width: wp(8)}]}
+                  alt=""
+                />
+              </TouchableOpacity>
+            </View>
+          )}
           <ScrollView
             className=""
             refreshControl={
