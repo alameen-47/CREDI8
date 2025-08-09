@@ -160,9 +160,8 @@ export const DeleteCustomer = async (req, res) => {
 
 //WHATSAPP MESSAGE CONTROLLER
 const client = twilio(process.env.TWILIO_SSID, process.env.TWILIO_AUTH_TOKEN);
-export const sendBulkWhatsappMessages = async message => {
-  const {messageBody} = message; // opThe message body to be sent
-
+export const sendBulkWhatsappMessages = async (req, res) => {
+  const {messageBody, userId} = req.query;
   try {
     const filter = {owner: userId};
     const customers = await customerModel.find(filter);
@@ -173,8 +172,6 @@ export const sendBulkWhatsappMessages = async message => {
         message: 'No customers found',
       });
     }
-    const messageBody =
-      'Hello!  Mariyadhik PAisa Adachal ningalk nalladh, illengil sherikkum vivaram ariyum Ok?';
 
     const sendMessages = customers.map(async customer => {
       try {

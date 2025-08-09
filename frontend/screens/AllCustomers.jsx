@@ -46,6 +46,29 @@ export default function AllCustomers() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [custAmount, setCustAmount] = useState();
   const [selectedCustId, setSelectedCustId] = useState();
+  const [messageBody, setMessageBody] = useState();
+
+  const getMessage = async () => {
+    try {
+      const res = await api.get(
+        `/api/v1/customer/get-message?userId=${userId}`,
+      );
+      const {message, scheduledAt} = res.data;
+
+      setMessageBody(message);
+      // setExistingDate(
+      //   new Date(scheduledAt).toLocaleDateString('en-GB', {
+      //     day: '2-digit',
+      //     month: '2-digit',
+      //     year: 'numeric',
+      //   }),
+      // );
+      // console.log('Message:', message);
+      // console.log('Scheduled Date:', scheduledAt);
+    } catch (error) {
+      console.log('Error Getting Message', error);
+    }
+  };
 
   const handleAddAmount = (text, sign) => {
     const num = Number(text);
@@ -115,6 +138,7 @@ export default function AllCustomers() {
 
   useEffect(() => {
     fetchAllCustomers('pending ');
+    getMessage();
   }, []);
 
   const handleDelete = customerId => {
@@ -150,11 +174,13 @@ export default function AllCustomers() {
       ],
     );
   };
+
   const sendMessages = async () => {
-    setLoading(true);
+    // setLoading(true);
+    toast.show('Message Sending ... ... ... ..');
     try {
       const res = await api.post('/api/v1/customer/send-whatsapp-messages', {
-        message,
+        messageBody,
         userId,
       });
       if (res & res.data.success) {
@@ -165,6 +191,7 @@ export default function AllCustomers() {
     }
     setLoading(false);
   };
+
   const callCustomers = async () => {
     setLoading(true);
     try {
@@ -198,14 +225,14 @@ export default function AllCustomers() {
               className="POPUP_SCREEN bg-gray-100 rounded-xl z-50 flex top-[40%] left-[18%] justify-center align-middle items-center m-auto absolute "
               style={[{width: wp(77)}, {height: hp(25)}]}>
               <Text className="text-lg font-semibold  text-black">
-                Modify The{' '}
+                Modify{' '}
                 <Text className="text-[#775948]">
                   {selectedCustomer?.custName}
                 </Text>
                 's Due Amount
               </Text>
               <Text className="bg-gray-300 w-full font-bold text-lg">
-                Previous Balance - {selectedCustomer?.custAmount}
+                Previous Balance - {selectedCustomer?.custAmount} /-
               </Text>
               <View
                 className="
@@ -318,7 +345,7 @@ export default function AllCustomers() {
               style={[{height: hp(5)}, {width: wp(67)}]}
               className="SEND_ICONS flex flex-row flex-end justify-between items-center align-middle space-x-2">
               <TouchableOpacity
-                className="bg-[#F4F1D6] rounded-lg flex justify-center align-middlej items-center"
+                className=" PHONE_CALL bg-[#F4F1D6] rounded-lg flex justify-center align-middlej items-center"
                 style={[{height: hp(5)}, {width: wp(30)}]}>
                 <Image
                   resizeMode="contain"
@@ -328,7 +355,8 @@ export default function AllCustomers() {
                 />
               </TouchableOpacity>
               <TouchableOpacity
-                className="bg-[#F4F1D6]  rounded-lg flex justify-center align-middlej items-center"
+                onPress={sendMessages}
+                className="WHATSAPP_CALL bg-[#F4F1D6]  rounded-lg flex justify-center align-middlej items-center"
                 style={[{height: hp(5)}, {width: wp(30)}]}>
                 <Image
                   resizeMode="contain"
