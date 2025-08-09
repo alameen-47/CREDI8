@@ -23,16 +23,16 @@ app.use(morgan('dev'));
 //PORT
 const PORT = process.env.PORT || 8086;
 
+//run listen
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`.bgCyan.white);
+});
+
 //routes
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/customer',customerRoutes);
+app.use('/api/v1/customer', customerRoutes);
 
 //rest api
 app.get('/', (req, res) => {
   res.send('<h1>Welcome to </h1>');
-});
-
-//run listen
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`.bgCyan.white);
 });
