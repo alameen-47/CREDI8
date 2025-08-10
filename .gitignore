@@ -75,3 +75,5 @@ node_modules
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+android/app/my-release-key.jks
+android/app/my-release-key.jks
