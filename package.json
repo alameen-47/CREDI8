@@ -10,7 +10,7 @@
     "test": "jest",
     "backend": "nodemon backend/server.js",
     "frontend": "cd frontend && npm start",
-    "dev": "concurrently \"npm run backend\" \"npm run android\""
+    "dev": "concurrently \"npm run backend\" \"npm run android\" \"npm run ios\" "
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
@@ -19,9 +19,14 @@
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.10.1",
     "axios": "^1.7.2",
+    "colors": "^1.4.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "lodash.debounce": "^4.0.8",
     "mongoose": "^8.5.4",
+    "morgan": "^1.10.1",
     "nativewind": "^2.0.11",
+    "nodemailer": "^7.0.11",
     "nodemon": "^3.1.4",
     "react": "18.2.0",
     "react-native": "^0.74.3",

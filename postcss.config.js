@@ -1,7 +1,7 @@
 module.exports = {
   plugins: [
-    'nativewind/postcss', // NativeWind PostCSS plugin
-    'autoprefixer', // Optional but recommended for adding vendor prefixes
-    // Add other PostCSS plugins if needed
+    require('nativewind/postcss'),
+    require('autoprefixer'), // Optional but recommended
+    // Add other PostCSS plugins here if they are synchronous
   ],
 };

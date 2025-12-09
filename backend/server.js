@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
+import express from 'express';
 import connectDB from './config/db.js';
 import colors from 'colors';
 import morgan from 'morgan';
 import authRoutes from './routes/authRoutes.js ';
 import customerRoutes from './routes/customerRoutes.js';
-import express from 'express';
 import cors from 'cors';
 
 //config .env
@@ -12,7 +12,6 @@ dotenv.config();
 
 //config DB
 connectDB();
-
 const app = express();
 
 //middleWare
