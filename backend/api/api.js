@@ -1,8 +1,11 @@
 import axios from 'axios';
-
+import {Platform} from 'react-native';
 // Use 10.0.2.2 for Android emulator, localhost or your IP for iOS simulator or physical device
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://10.0.2.2:8086',
+  baseURL:
+    Platform.OS === 'android'
+      ? process.env.REACT_APP_API_URL || 'http://10.0.2.2:8080'
+      : 'http://localhost:8080',
 });
 
 export default api;

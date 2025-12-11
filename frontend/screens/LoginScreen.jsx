@@ -64,7 +64,7 @@ export default function LoginScreen() {
               value={email}
               onChangeText={setEmail}
               style={[{width: wp(95)}]}
-              className="pl-5 bg-[#F4F1D6] justify-center h-14 align-middle items-center w-screen  rounded-xl"
+              className="pl-5 bg-[#F4F1D6] justify-center h-14 align-middle items-center w-screen  rounded-xl l"
               placeholder="Enter Your Email"
             />
           </View>

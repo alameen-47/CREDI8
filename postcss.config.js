@@ -4,4 +4,4 @@ module.exports = {
     require('autoprefixer'), // Optional but recommended
     // Add other PostCSS plugins here if they are synchronous
   ],
-};
+}; 
