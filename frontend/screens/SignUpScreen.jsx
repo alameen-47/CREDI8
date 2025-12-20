@@ -35,9 +35,8 @@ export default function SignUpScreen() {
         password,
         phone,
       });
-      const {success, message} = response.data;
 
-      if (success) {
+      if (res.data.success) {
         toast.show('Registered Successfully!!!');
         navigation.navigate('LogIn');
       }

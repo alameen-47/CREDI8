@@ -49,6 +49,7 @@ export const register = async (req, res) => {
     // Respond with success and user details
     res.status(201).send({
       success: true,
+      code:"USER_CREATED",
       message: 'User created successfully',
       userId: user._id, // Return the user's unique ID
       user, // Return the user object (excluding sensitive information like the hashed password)

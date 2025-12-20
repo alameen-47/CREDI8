@@ -17,10 +17,10 @@ export default function SideBar() {
       {!toggle ? (
         <View
           style={{
-            zIndex: 100,
+            zIndex: 999,
             position: 'absolute',
             height: '100%',
-            width: '15%',
+            width: '18%',
           }}
           className="absolute h-auto flex justify-between bg-[#151E25] py-16">
           <View className="flex justify-center align-middle items-center">
@@ -70,7 +70,7 @@ export default function SideBar() {
       ) : (
         <View
           style={{
-            zIndex: 100,
+            zIndex: 999,
             position: 'absolute',
             height: '100%',
             width: '55%',
