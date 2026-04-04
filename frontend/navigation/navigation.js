@@ -20,14 +20,31 @@ import AllCustomers from '../screens/AllCustomers.jsx';
 import EditMessage from '../screens/EditMessage.jsx';
 import UserDetails from '../screens/UserDetails.jsx';
 import EditUser from '../screens/EditUser.jsx';
+import DashboardScreen from '../screens/DashboardScreen.jsx';
+import BillingScreen from '../screens/BillingScreen.jsx';
+import PrivacyScreen from '../screens/PrivacyScreen.jsx';
+import IntegrationsScreen from '../screens/IntegrationsScreen.jsx';
+import PlanSelectScreen from '../screens/PlanSelectScreen.jsx';
 import {SearchProvider} from '../../backend/context/search.js';
 import AuthProvider from '../../backend/context/auth.js';
 import { MenuProvider } from 'react-native-popup-menu';
 
+const linking = {
+  prefixes: ['cred8://'],
+  config: {
+    screens: {
+      Billing: {
+        path: 'billing',
+      },
+      HomeScreen: 'home',
+    },
+  },
+};
+
 function AppNavigation() {
   return (
     <ToastProvider>
-      <NavigationContainer>
+      <NavigationContainer linking={linking}>
         <AuthProvider>
           <SearchProvider>
             <MenuProvider>
@@ -57,6 +74,14 @@ function AppNavigation() {
                 <Stack.Screen name="EditMessage" component={EditMessage} />
                 <Stack.Screen name="UserDetails" component={UserDetails} />
                 <Stack.Screen name="EditUser" component={EditUser} />
+                <Stack.Screen name="Dashboard" component={DashboardScreen} />
+                <Stack.Screen name="PlanSelect" component={PlanSelectScreen} />
+                <Stack.Screen name="Billing" component={BillingScreen} />
+                <Stack.Screen name="Privacy" component={PrivacyScreen} />
+                <Stack.Screen
+                  name="Integrations"
+                  component={IntegrationsScreen}
+                />
               </Stack.Navigator>
             </MenuProvider>
           </SearchProvider>

@@ -16,7 +16,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import api from '../../backend/api/api';
 import {SearchContext} from '../../backend/context/search';
-import {Toast, useToast} from 'react-native-toast-notifications';
+import {useToast} from 'react-native-toast-notifications';
 import {AuthContext} from '../../backend/context/auth';
 
 export default function PaidList() {
@@ -29,12 +29,29 @@ export default function PaidList() {
 
   const userId = auth?.user?._id;
   const toast = useToast();
+  const [message, setMessage] = useState('');
+
+  const loadMessage = async () => {
+    if (!userId) {
+      return;
+    }
+    try {
+      const res = await api.get(
+        `/api/v1/customer/get-message?userId=${userId}`,
+      );
+      if (res.data?.message) {
+        setMessage(res.data.message);
+      }
+    } catch {
+      /* optional template */
+    }
+  };
 
   const fetchAllCustomer = async () => {
     try {
       setRefreshing(true);
       const res = await api.get(
-        `api/v1/customer/all-customers?userId=${userId}&paid=false`,
+        `/api/v1/customer/all-customers?userId=${userId}&paid=false`,
       );
       setAllCustomer(res.data);
     } catch (error) {
@@ -51,6 +68,10 @@ export default function PaidList() {
   }, []);
 
   useEffect(() => {
+    loadMessage();
+  }, [userId]);
+
+  useEffect(() => {
     if ((query ?? '').trim() === '') {
       setCustomer(allCustomer);
     } else if (Array.isArray(allCustomer)) {
@@ -65,9 +86,10 @@ export default function PaidList() {
     setLoading(true);
     try {
       const res = await api.post('/api/v1/customer/send-whatsapp-messages', {
-        message,
+        messageBody: message,
+        userId,
       });
-      if (res & res.data.success) {
+      if (res && res.data.success) {
         toast.show('Message Sent to All Successfully!!');
       }
     } catch (error) {
@@ -78,8 +100,8 @@ export default function PaidList() {
   const callCustomers = async () => {
     setLoading(true);
     try {
-      const res = await api.post('/api/v1/customer/make-call');
-      if (res.status.success) {
+      const res = await api.post('/api/v1/customer/make-call', {});
+      if (res.data?.success) {
         toast.show('Call Made to All Successfully!!');
       }
     } catch (error) {

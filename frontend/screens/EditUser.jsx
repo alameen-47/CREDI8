@@ -4,37 +4,58 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  Alert,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Layout from './Layout';
 import {
   widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {useNavigation} from '@react-navigation/native';
+import {useToast} from 'react-native-toast-notifications';
+import api from '../../backend/api/api';
+import {AuthContext} from '../../backend/context/auth';
 
 export default function EditUser() {
   const navigation = useNavigation();
+  const toast = useToast();
+  const {auth, saveAuthData} = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+
+  useEffect(() => {
+    const u = auth?.user;
+    if (u) {
+      setName(u.name || '');
+      setEmail(u.email || '');
+      setPhone(u.phone || '');
+    }
+  }, [auth?.user]);
 
   const handleSubmit = async () => {
     try {
       const res = await api.post('/api/v1/auth/update-profile', {
         name,
         email,
-        // password,
         phone,
       });
-      if (res && res.data.success) {
-        toast.show('Updated Successfully!!!');
+      if (res?.data?.success) {
+        const nextUser = res.data.user;
+        if (nextUser && auth?.token) {
+          await saveAuthData(nextUser, auth.token);
+        }
+        toast.show('Updated successfully');
         navigation.navigate('UserDetails');
       } else {
-        alert('Error', res.data.message);
+        Alert.alert('Error', res?.data?.message || 'Update failed');
       }
     } catch (error) {
-      toast.show(`Something went wrong!! ${error.message}`);
+      const msg =
+        error.response?.data?.message ||
+        error.message ||
+        'Something went wrong';
+      toast.show(msg);
     }
   };
 
@@ -55,8 +76,11 @@ export default function EditUser() {
             </Text>
             <TextInput
               placeholder="Enter User Name"
+              value={name}
               onChangeText={setName}
-              className=" text-black bg-white w-[100%] px-2 rounded-lg  p-1"></TextInput>
+              className=" text-black bg-white w-[100%] px-2 rounded-lg  p-1"
+              accessibilityLabel="Full name"
+            />
           </View>
           <View className="mb-5 flex-col justify-center align-middle  gap-2">
             <Text
@@ -66,8 +90,13 @@ export default function EditUser() {
             </Text>
             <TextInput
               placeholder="Enter Email Address"
+              value={email}
               onChangeText={setEmail}
-              className=" text-black bg-white w-[100%] px-2 rounded-lg  p-1"></TextInput>
+              keyboardType="email-address"
+              autoCapitalize="none"
+              className=" text-black bg-white w-[100%] px-2 rounded-lg  p-1"
+              accessibilityLabel="Email address"
+            />
           </View>
           <View className="mb-5 flex-col justify-center align-middle  gap-2">
             <Text
@@ -76,20 +105,14 @@ export default function EditUser() {
               Whatsapp:
             </Text>
             <TextInput
+              value={phone}
               onChangeText={setPhone}
               placeholder="Enter Whatsapp Number"
-              className=" text-black bg-white w-[100%] px-2 rounded-lg  p-1"></TextInput>
+              keyboardType="phone-pad"
+              className=" text-black bg-white w-[100%] px-2 rounded-lg  p-1"
+              accessibilityLabel="WhatsApp phone number"
+            />
           </View>
-          {/* <View className="mb-5 flex-col justify-center align-middle  gap-2">
-            <Text
-              style={[{fontSize: wp(4)}, styles.text, styles.shadow]}
-              className="text-[#775948] ">
-              Mobile (Optional):
-            </Text>
-            <TextInput
-              placeholder="Enter Mobile Number"
-              className=" text-black bg-white w-[100%] px-2 rounded-lg  p-1"></TextInput>
-          </View> */}
         </View>
         <TouchableOpacity
           style={[styles.shadow]}
@@ -109,7 +132,6 @@ export default function EditUser() {
 const styles = StyleSheet.create({
   text: {
     fontFamily: 'Arial Rounded MT Bold',
-    // Make sure this matches the font's name
   },
   shadow: {
     shadowColor: '#00000',

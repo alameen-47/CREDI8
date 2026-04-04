@@ -7,32 +7,31 @@ import {
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Layout from './Layout';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {useToast} from 'react-native-toast-notifications';
+import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {useNavigation} from '@react-navigation/native';
 import api from '../../backend/api/api';
 import {AuthContext} from '../../backend/context/auth';
 
 export default function UserDetails() {
   const navigation = useNavigation();
-  const toast = useToast();
-  const [user, setUser] = useState(''); // State to store user data
+  const [user, setUser] = useState(null);
   const {auth} = useContext(AuthContext);
 
   const fetchUser = async () => {
     try {
-      const res = await api.get(`/api/v1/auth/user/${auth?.user._id}`);
-      setUser(res?.data?.user);
+      if (!auth?.user?._id) {
+        return;
+      }
+      const res = await api.get(`/api/v1/auth/user/${auth.user._id}`);
+      setUser(res?.data?.user || null);
     } catch (error) {
       console.log(error);
+      setUser(auth?.user || null);
     }
   };
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [auth?.user?._id]);
   return (
     <Layout>
       <View
@@ -44,54 +43,48 @@ export default function UserDetails() {
           USER PROFILE
         </Text>
         <View className="mt-8 w-[100%]">
-          <View className="mb-9 flex-row justify-between align-middle items-center gap-4">
-            <Text
-              style={[{fontSize: wp(5)}, styles.text, styles.shadow]}
-              className="text-[#775948]  ">
-              Name:
-            </Text>
-            <Text
-              style={[{fontSize: wp(4)}, styles.text, styles.shadow]}
-              className="text-[#66636D]  ">
-              {user.name}
-            </Text>
-          </View>
-          <View className="mb-9 truncate flex-row justify-between align-middle items-center gap-4">
-            <Text
-              style={[{fontSize: wp(5)}, styles.text, styles.shadow]}
-              className="text-[#775948]  ">
-              Email:
-            </Text>
-            <Text
-              style={[{fontSize: wp(4)}, styles.text, styles.shadow]}
-              className="text-[#66636D]  ">
-              {user.email}
-            </Text>
-          </View>
-          <View className="mb-9 flex-row justify-between align-middle items-center gap-4">
-            <Text
-              style={[{fontSize: wp(5)}, styles.text, styles.shadow]}
-              className="text-[#775948]  ">
-              Whatsapp:
-            </Text>
-            <Text
-              style={[{fontSize: wp(4)}, styles.text, styles.shadow]}
-              className="text-[#66636D]  ">
-              {user.phone}
-            </Text>
-          </View>
-          <View className="mb-9 flex-row justify-between align-middle items-center gap-4">
-            <Text
-              style={[{fontSize: wp(5)}, styles.text, styles.shadow]}
-              className="text-[#775948]  ">
-              Mobile:
-            </Text>
-            <Text
-              style={[{fontSize: wp(4)}, styles.text, styles.shadow]}
-              className="text-[#66636D]  ">
-              +422 481 222 32
-            </Text>
-          </View>
+          {!user ? (
+            <ActivityIndicator color="#775948" style={{marginTop: 24}} />
+          ) : (
+            <>
+              <View className="mb-9 flex-row justify-between align-middle items-center gap-4">
+                <Text
+                  style={[{fontSize: wp(5)}, styles.text, styles.shadow]}
+                  className="text-[#775948]  ">
+                  Name:
+                </Text>
+                <Text
+                  style={[{fontSize: wp(4)}, styles.text, styles.shadow]}
+                  className="text-[#66636D]  ">
+                  {user.name || '—'}
+                </Text>
+              </View>
+              <View className="mb-9 truncate flex-row justify-between align-middle items-center gap-4">
+                <Text
+                  style={[{fontSize: wp(5)}, styles.text, styles.shadow]}
+                  className="text-[#775948]  ">
+                  Email:
+                </Text>
+                <Text
+                  style={[{fontSize: wp(4)}, styles.text, styles.shadow]}
+                  className="text-[#66636D]  ">
+                  {user.email || '—'}
+                </Text>
+              </View>
+              <View className="mb-9 flex-row justify-between align-middle items-center gap-4">
+                <Text
+                  style={[{fontSize: wp(5)}, styles.text, styles.shadow]}
+                  className="text-[#775948]  ">
+                  Whatsapp:
+                </Text>
+                <Text
+                  style={[{fontSize: wp(4)}, styles.text, styles.shadow]}
+                  className="text-[#66636D]  ">
+                  {user.phone || '—'}
+                </Text>
+              </View>
+            </>
+          )}
         </View>
         <TouchableOpacity
           style={[styles.shadow]}

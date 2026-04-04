@@ -3,11 +3,29 @@ import {comparePassword, hashPassword} from '../helpers/authHelper.js';
 import userModel from '../models/userModel.js';
 import JWT from 'jsonwebtoken';
 import otpGenerator from 'otp-generator';
-// import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {normalizePlan} from '../config/plans.js';
+
 dotenv.config(); // Load environment variables
+
+function signUserToken(userId) {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not configured');
+  }
+  return JWT.sign({id: String(userId)}, secret, {expiresIn: '7d'});
+}
+
+function publicUser(userDoc) {
+  const u = userDoc.toObject ? userDoc.toObject() : {...userDoc};
+  delete u.password;
+  delete u.otp;
+  delete u.razorpayCustomerId;
+  delete u.razorpaySubscriptionId;
+  delete u.mockPendingPlanCode;
+  return u;
+}
 
 export const register = async (req, res) => {
   // console.log('Register function called');
@@ -46,13 +64,12 @@ export const register = async (req, res) => {
     // Save the new user to the database
     await user.save();
 
-    // Respond with success and user details
     res.status(201).send({
       success: true,
-      code:"USER_CREATED",
+      code: 'USER_CREATED',
       message: 'User created successfully',
-      userId: user._id, // Return the user's unique ID
-      user, // Return the user object (excluding sensitive information like the hashed password)
+      userId: user._id,
+      user: publicUser(user),
     });
   } catch (error) {
     // Log the error to the console for debugging
@@ -98,10 +115,7 @@ export const login = async (req, res) => {
       return res.status(400).send({message: 'Invalid email or password'});
     }
 
-    //token
-    const token = JWT.sign({_id: user._id}, 'HF2EB251901HE1VDKSQ', {
-      expiresIn: '7d',
-    });
+    const token = signUserToken(user._id);
     res.status(200).send({
       success: true,
       message: 'Login successful',
@@ -110,13 +124,11 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
+        role: user.role,
+        plan: normalizePlan(user.plan),
       },
       token,
     });
-    if (res.data) {
-      await AsyncStorage.setItem('user', JSON.stringify(res.data)); // Save user data
-      // console.log('User logged in and stored:', res.data);
-    }
   } catch (error) {
     console.error(error);
     res.status(500).send({
@@ -239,28 +251,66 @@ export const verifyOtp = async (req, res) => {
 
 export const updateProfileController = async (req, res) => {
   try {
-    const {name, email, phoneNumber} = req.body;
-    const user = await userModel.findOne({email});
+    const {name, email, phoneNumber, phone} = req.body;
+    const user = await userModel.findById(req.user._id);
     if (!user) {
-      return res.status(404).send({
+      return res.status(404).json({
         success: false,
-        message: 'User not found, please check your email',
+        message: 'User not found',
       });
     }
-    user.name = name;
-    user.email = email;
-    user.phoneNumber = phoneNumber;
+    const nextName = typeof name === 'string' ? name.trim() : '';
+    if (!nextName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name is required',
+      });
+    }
+    user.name = nextName;
+
+    const nextEmailRaw =
+      typeof email === 'string' ? email.trim().toLowerCase() : '';
+    if (nextEmailRaw) {
+      if (nextEmailRaw !== String(user.email || '').toLowerCase()) {
+        const taken = await userModel.findOne({email: nextEmailRaw});
+        if (taken) {
+          return res.status(400).json({
+            success: false,
+            message: 'Email already in use',
+          });
+        }
+        user.email = nextEmailRaw;
+      }
+    }
+
+    const nextPhone =
+      phoneNumber != null && phoneNumber !== ''
+        ? String(phoneNumber).trim()
+        : phone != null && phone !== ''
+          ? String(phone).trim()
+          : null;
+    if (nextPhone != null) {
+      user.phone = nextPhone;
+    }
+
     await user.save();
-    res.status(200).send({
+    res.status(200).json({
       success: true,
       message: 'Profile Updated Successfully',
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        plan: normalizePlan(user.plan),
+      },
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).send({
+    console.error(error);
+    res.status(500).json({
       success: false,
       message: 'Something went wrong!',
-      error,
     });
   }
 };
@@ -268,7 +318,7 @@ export const updateProfileController = async (req, res) => {
 // Controller function to fetch all users
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await userModel.find(); // Fetch all users from the database
+    const users = await userModel.find().select('-password');
 
     if (!users.length) {
       return res.status(404).send({
@@ -281,6 +331,8 @@ export const getAllUsers = async (req, res) => {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      role: user.role,
+      plan: normalizePlan(user.plan),
     }));
     res.status(200).send({
       success: true,
@@ -300,8 +352,23 @@ export const getAllUsers = async (req, res) => {
 // Controller function to fetch user data
 export const getUserData = async (req, res) => {
   try {
-    const userId = req.params.id; // Get the user ID from the URL parameter
-    const user = await userModel.findById(userId).select('-password');
+    const userId = req.params.id;
+    const requester = req.user;
+    if (
+      requester &&
+      requester.role !== 'admin' &&
+      String(requester._id) !== String(userId)
+    ) {
+      return res.status(403).send({
+        success: false,
+        message: 'Forbidden',
+      });
+    }
+    const user = await userModel
+      .findById(userId)
+      .select(
+        '-password -otp -razorpayCustomerId -razorpaySubscriptionId -mockPendingPlanCode',
+      );
 
     if (!user) {
       return res.status(404).send({

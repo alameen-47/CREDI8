@@ -80,6 +80,76 @@ export default function SideBar() {
             <TouchableOpacity
               onPress={() => {
                 setToggle(false);
+                navigation.navigate('HomeScreen');
+              }}
+              className="flex flex-row justify-between items-center align-middle gap-3 px-2">
+              <Text
+                style={{fontSize: wp(4.5)}}
+                className="text-[#F4F1D6] font-bold">
+                HOME
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View className="flex justify-start items-center ">
+            <TouchableOpacity
+              onPress={() => {
+                setToggle(false);
+                navigation.navigate('Dashboard');
+              }}
+              className="flex flex-row justify-between items-center align-middle gap-3 px-2">
+              <Text
+                style={{fontSize: wp(4.5)}}
+                className="text-[#F4F1D6] font-bold">
+                USAGE
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View className="flex justify-start items-center ">
+            <TouchableOpacity
+              onPress={() => {
+                setToggle(false);
+                navigation.navigate('Billing');
+              }}
+              className="flex flex-row justify-between items-center align-middle gap-3 px-2">
+              <Text
+                style={{fontSize: wp(4.5)}}
+                className="text-[#F4F1D6] font-bold">
+                BILLING
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View className="flex justify-start items-center ">
+            <TouchableOpacity
+              onPress={() => {
+                setToggle(false);
+                navigation.navigate('Integrations');
+              }}
+              className="flex flex-row justify-between items-center align-middle gap-3 px-2">
+              <Text
+                style={{fontSize: wp(4.5)}}
+                className="text-[#F4F1D6] font-bold">
+                API KEYS
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View className="flex justify-start items-center ">
+            <TouchableOpacity
+              onPress={() => {
+                setToggle(false);
+                navigation.navigate('Privacy');
+              }}
+              className="flex flex-row justify-between items-center align-middle gap-3 px-2">
+              <Text
+                style={{fontSize: wp(4.5)}}
+                className="text-[#F4F1D6] font-bold">
+                PRIVACY
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View className="flex justify-start items-center ">
+            <TouchableOpacity
+              onPress={() => {
+                setToggle(false);
                 navigation.navigate('AddCustomer');
               }}
               className="flex flex-row justify-between items-center align-middle gap-3 px-2">

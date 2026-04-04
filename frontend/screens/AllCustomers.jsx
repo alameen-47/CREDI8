@@ -42,6 +42,7 @@ export default function AllCustomers() {
   const [paidFocused, setPaidFocused] = useState(false);
   const [pendingFocused, setPendingFocused] = useState(true);
   const [popUp, setPopUp] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const userId = auth?.user?._id;
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [custAmount, setCustAmount] = useState();
@@ -176,33 +177,39 @@ export default function AllCustomers() {
   };
 
   const sendMessages = async () => {
-    // setLoading(true);
-    toast.show('Message Sending ... ... ... ..');
+    toast.show('Sending messages…');
+    setActionLoading(true);
     try {
       const res = await api.post('/api/v1/customer/send-whatsapp-messages', {
         messageBody,
         userId,
       });
-      if (res & res.data.success) {
-        toast.show('Message Sent to All Successfully!!');
+      if (res && res.data.success) {
+        toast.show('Message sent to all customers');
       }
     } catch (error) {
-      toast.show(`Something went wrong!!! ${error.message} `);
+      toast.show(
+        error.response?.data?.message ||
+          `Something went wrong: ${error.message}`,
+      );
     }
-    setLoading(false);
+    setActionLoading(false);
   };
 
   const callCustomers = async () => {
-    setLoading(true);
+    setActionLoading(true);
     try {
-      const res = await api.post('/api/v1/customer/make-call', userId);
-      if (res.status.success) {
-        toast.show('Call Made to All Successfully!!');
+      const res = await api.post('/api/v1/customer/make-call', {});
+      if (res.data?.success) {
+        toast.show(res.data.message || 'Calls initiated');
       }
     } catch (error) {
-      toast.show(`Something went wrong !!! ${error.message}`);
+      toast.show(
+        error.response?.data?.message ||
+          `Something went wrong: ${error.message}`,
+      );
     }
-    setLoading(false);
+    setActionLoading(false);
   };
   return (
     <Layout>
@@ -345,6 +352,8 @@ export default function AllCustomers() {
               style={[{height: hp(5)}, {width: wp(67)}]}
               className="SEND_ICONS flex flex-row flex-end justify-between items-center align-middle space-x-2">
               <TouchableOpacity
+                onPress={callCustomers}
+                disabled={actionLoading}
                 className=" PHONE_CALL bg-[#F4F1D6] rounded-lg flex justify-center align-middlej items-center"
                 style={[{height: hp(5)}, {width: wp(30)}]}>
                 <Image
@@ -356,6 +365,7 @@ export default function AllCustomers() {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={sendMessages}
+                disabled={actionLoading}
                 className="WHATSAPP_CALL bg-[#F4F1D6]  rounded-lg flex justify-center align-middlej items-center"
                 style={[{height: hp(5)}, {width: wp(30)}]}>
                 <Image

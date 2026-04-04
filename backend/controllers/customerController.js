@@ -1,26 +1,43 @@
 import dotenv from 'dotenv';
-import twilio from 'twilio';
-dotenv.config(); // Load environment variables
+dotenv.config();
 import customerModel from '../models/customerModel.js';
 import Message from '../models/messageModel.js';
-import {useReducer} from 'react';
+import callLogModel from '../models/callLogModel.js';
+import {assertCallQuota} from '../services/usageService.js';
+import {
+  placeOutboundCall,
+  publicTwimlUrl,
+  sendWhatsAppToCustomers,
+} from '../services/callService.js';
+
+function escapeRegExp(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function escapeXmlText(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 export const SearchController = async (req, res) => {
-  // Extract the 'query' parameter from the request's query string
-  const {query, userId} = req.query;
+  const {query} = req.query;
+  const userId = req.user?._id?.toString() || req.query.userId;
 
   if (!query) {
     return res.status(400).json({message: 'Search query is required'});
   }
+  if (!userId) {
+    return res.status(400).json({message: 'User ID is required'});
+  }
 
   try {
-    // Search for customers where the name or number matches the query (case-insensitive)
+    const safe = escapeRegExp(query);
     const result = await customerModel.find({
       owner: userId,
-      $or: [
-        {custName: {$regex: query, $options: 'i'}},
-        // {custNumber: {$regex: String(query)}},
-      ],
+      $or: [{custName: {$regex: safe, $options: 'i'}}],
     });
 
     res.status(200).send(result);
@@ -28,16 +45,20 @@ export const SearchController = async (req, res) => {
     console.error('Database Query Error:', error);
     res.status(500).json({
       message: 'Error Searching Customer',
-      error,
     });
   }
 };
 
 export const AddCustomer = async (req, res) => {
   try {
-    const {custName, custNumber, custAmount, custDueDate, userId} = req.body;
+    const {custName, custNumber, custAmount, custDueDate, userId: bodyUserId} =
+      req.body;
+    const userId = req.user?._id?.toString() || bodyUserId;
     if (!custName || !custNumber || !custAmount || !custDueDate) {
       return res.status(400).json({message: 'Please fill in all fields.'});
+    }
+    if (!userId) {
+      return res.status(400).json({message: 'User ID is required'});
     }
     // Ensure custDueDate is in the YYYY-MM-DD format before saving
     const ExistingCustomer = await customerModel.findOne({
@@ -81,6 +102,21 @@ export const EditCustomer = async (req, res) => {
       });
     }
 
+    const existing = await customerModel.findById(_id);
+    if (!existing) {
+      return res.status(404).send({
+        success: false,
+        message: 'No Customer Found in this ID',
+      });
+    }
+    if (
+      req.user &&
+      String(existing.owner) !== String(req.user._id) &&
+      req.user.role !== 'admin'
+    ) {
+      return res.status(403).send({success: false, message: 'Forbidden'});
+    }
+
     const updateFields = {};
 
     if (custName !== undefined) updateFields.custName = custName;
@@ -118,7 +154,8 @@ export const EditCustomer = async (req, res) => {
 
 export const FetchAllCustomer = async (req, res) => {
   try {
-    const {userId, paid} = req.query;
+    const {paid} = req.query;
+    const userId = req.user?._id?.toString() || req.query.userId;
 
     if (!userId) return res.status(400).json({message: 'User ID is required'});
 
@@ -141,6 +178,15 @@ export const FetchAllCustomer = async (req, res) => {
 export const DeleteCustomer = async (req, res) => {
   try {
     const {id} = req.params;
+    const existing = await customerModel.findById(id);
+    if (
+      existing &&
+      req.user &&
+      String(existing.owner) !== String(req.user._id) &&
+      req.user.role !== 'admin'
+    ) {
+      return res.status(403).json({success: false, message: 'Forbidden'});
+    }
     const deletedCustomer = await customerModel.findByIdAndDelete(id);
     if (!deletedCustomer) {
       return res
@@ -158,11 +204,16 @@ export const DeleteCustomer = async (req, res) => {
   }
 };
 
-//WHATSAPP MESSAGE CONTROLLER
-const client = twilio(process.env.TWILIO_SSID, process.env.TWILIO_AUTH_TOKEN);
 export const sendBulkWhatsappMessages = async (req, res) => {
-  const {messageBody, userId} = req.query;
+  const messageBody = req.body?.messageBody ?? req.query?.messageBody;
+  const userId =
+    req.user?._id?.toString() ||
+    req.body?.userId ||
+    req.query?.userId;
   try {
+    if (!userId) {
+      return res.status(400).json({success: false, message: 'User ID required'});
+    }
     const filter = {owner: userId};
     const customers = await customerModel.find(filter);
 
@@ -172,30 +223,29 @@ export const sendBulkWhatsappMessages = async (req, res) => {
         message: 'No customers found',
       });
     }
+    if (messageBody == null || String(messageBody).trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: 'messageBody is required',
+      });
+    }
 
-    const sendMessages = customers.map(async customer => {
-      try {
-        if (customer.custNumber) {
-          return client.messages.create({
-            from: `whatsapp:${process.env.TWILIO_PHONE_NUMBER}`,
-            to: `whatsapp:+966${customer.custNumber}`,
-            body: messageBody,
-          });
-        }
-      } catch (twilioError) {
-        console.log(
-          `Failed to send message to ${customer.custNumber}: `,
-          twilioError,
-        );
-      }
+    const result = await sendWhatsAppToCustomers({
+      customers,
+      messageBody: String(messageBody).trim().slice(0, 4000),
     });
-
-    await Promise.all(sendMessages);
     res.status(200).json({
       success: true,
       message: 'Message Sent To All Customers Successfully!!!',
+      mock: Boolean(result._mock),
     });
   } catch (error) {
+    if (error.status) {
+      return res.status(error.status).json({
+        success: false,
+        message: error.message,
+      });
+    }
     console.log('Error in sendBulkWhatsappMessages CONTROLLER', error);
     res.status(500).json({success: false, error: error.message});
   }
@@ -203,7 +253,20 @@ export const sendBulkWhatsappMessages = async (req, res) => {
 //Twilio calling feature controller and calling file
 export const makeBulkCalls = async (req, res) => {
   try {
-    const customers = await customerModel.find();
+    const ownerId =
+      req.user?._id?.toString() ||
+      req.body?.userId ||
+      req.query?.userId;
+    if (!ownerId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Authentication required to place calls',
+      });
+    }
+
+    await assertCallQuota(ownerId);
+
+    const customers = await customerModel.find({owner: ownerId});
     if (!customers.length) {
       return res.status(400).json({
         success: false,
@@ -211,33 +274,63 @@ export const makeBulkCalls = async (req, res) => {
       });
     }
 
-    const sendCalls = customers.map(async customer => {
-      try {
-        const call = await client.calls.create({
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: `+966${customer.custNumber}`,
-          url: `http://10.0.2.2:8086/api/v1/customer/twiml-voice`,
+    const twimlUrl = publicTwimlUrl();
+    const results = await Promise.all(
+      customers.map(async customer => {
+        const log = await callLogModel.create({
+          owner: ownerId,
+          customerId: customer._id,
+          toNumber: String(customer.custNumber),
+          status: 'queued',
+          lastAttemptAt: new Date(),
         });
-        console.log(`CAll initiated to ${customer.custNumber}`);
-      } catch (error) {
-        console.error(`Failed to call ${customer.custNumber}: `, error.message);
-      }
-    });
-    await Promise.all(sendCalls);
+        try {
+          const call = await placeOutboundCall({
+            toE164: `+966${customer.custNumber}`,
+            twimlUrl,
+          });
+          log.twilioCallSid = call.sid;
+          log.status = 'queued';
+          await log.save();
+          return {ok: true, to: customer.custNumber, sid: call.sid};
+        } catch (error) {
+          log.status = 'failed';
+          log.errorMessage = error.message;
+          log.retryCount = (log.retryCount || 0) + 1;
+          await log.save();
+          console.error(`Failed to call ${customer.custNumber}: `, error.message);
+          return {ok: false, to: customer.custNumber, error: error.message};
+        }
+      }),
+    );
+
+    const ok = results.filter(r => r.ok).length;
+    const failed = results.length - ok;
+
     res.status(200).json({
       success: true,
-      message: 'Calls Initiated Succesfully!',
+      message: `Calls processed: ${ok} started, ${failed} failed`,
+      started: ok,
+      failed,
     });
   } catch (error) {
+    if (error.status) {
+      return res.status(error.status).json({
+        success: false,
+        code: error.code,
+        message: error.message,
+      });
+    }
     console.log('Error in makeBulkCalls', error.message);
     res.status(500).json({success: false, error: error.message});
   }
 };
 //twilio voice file for calling
 export const getTwiml = (req, res) => {
-  const message =
-    req.body.message ||
+  const raw =
+    req.body?.message ||
     'مرحباً، هذه تذكرة من مول رواد السليمي بخصوص المبلغ المتبقي على حسابكم. يرجى تسويته في أقرب وقت ممكن. شكراً لكم!';
+  const message = escapeXmlText(raw);
 
   res.type('text/xml');
   res.send(`
@@ -249,7 +342,8 @@ export const getTwiml = (req, res) => {
 
 export const createMessage = async (req, res) => {
   try {
-    const {message, scheduledAt, userId} = req.body;
+    const {message, scheduledAt, userId: bodyUserId} = req.body;
+    const userId = req.user?._id?.toString() || bodyUserId;
 
     if (!userId) {
       return res
@@ -307,7 +401,12 @@ export const createMessage = async (req, res) => {
 
 export const getMesssge = async (req, res) => {
   try {
-    const userId = req.query.userId;
+    const userId = req.user?._id?.toString() || req.query.userId;
+    if (!userId) {
+      return res
+        .status(400)
+        .send({success: false, message: 'User ID is required'});
+    }
     const message = await Message.findOne({owner: userId}).sort({
       createdAt: -1,
     }); // Get latest message

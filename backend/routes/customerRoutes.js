@@ -1,5 +1,4 @@
 import express from 'express';
-
 import {
   AddCustomer,
   createMessage,
@@ -16,31 +15,19 @@ import {authMiddleware} from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-//CUSTOMER config
-
-router.get('/all-customers', FetchAllCustomer);
-
-router.post('/add-customer', AddCustomer);
-
-router.put('/edit-customer', EditCustomer);
+router.get('/all-customers', authMiddleware, FetchAllCustomer);
+router.post('/add-customer', authMiddleware, AddCustomer);
+router.put('/edit-customer', authMiddleware, EditCustomer);
+router.get('/search', authMiddleware, SearchController);
+router.delete('/delete/:id', authMiddleware, DeleteCustomer);
+router.post('/create-message', authMiddleware, createMessage);
+router.post('/send-whatsapp-messages', authMiddleware, sendBulkWhatsappMessages);
+router.post('/make-call', authMiddleware, makeBulkCalls);
+router.get('/twiml-voice', getTwiml);
+router.get('/get-message', authMiddleware, getMesssge);
 
 router.get('/protected', authMiddleware, (req, res) => {
-  res.json({message: 'YOu are protected', user: req.user});
+  res.json({message: 'You are protected', user: req.user});
 });
 
-// Route to handle search requests
-router.get('/search', SearchController);
-
-router.delete('/delete/:id', DeleteCustomer);
-
-router.post('/create-message', createMessage);
-// Route to send Whatsapp Messages to all
-router.post('/send-whatsapp-messages', sendBulkWhatsappMessages);
 export default router;
-
-//route to initiate calls to all
-router.post('/make-call', makeBulkCalls);
-//route for the voice file located in the controller file
-router.get('/twiml-voice', getTwiml);
-
-router.get('/get-message', getMesssge);
