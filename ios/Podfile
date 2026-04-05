@@ -36,5 +36,17 @@ target 'CREDI8' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    react_native_config_envfiles = {
+      'Debug' => '$(PODS_ROOT)/../../.env.development',
+      'Release' => '$(PODS_ROOT)/../../.env.production',
+    }
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |cfg|
+        if target.name == 'react-native-config'
+          cfg.build_settings['ENVFILE'] = react_native_config_envfiles[cfg.name]
+        end
+      end
+    end
   end
 end

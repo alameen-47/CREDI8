@@ -15,7 +15,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
-import api from '../../backend/api/api';
+import api from '../services/api';
 import {useToast} from 'react-native-toast-notifications';
 
 export default function SignUpScreen() {

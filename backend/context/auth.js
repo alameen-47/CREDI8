@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import React, {createContext, useEffect, useState} from 'react';
-import {setApiAuthToken} from '../api/api.js';
+import {setApiAuthToken} from '../../frontend/services/api.js';
 
 export const AuthContext = createContext();
 

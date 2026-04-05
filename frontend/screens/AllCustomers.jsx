@@ -24,7 +24,7 @@ import {
   MenuTrigger,
 } from 'react-native-popup-menu';
 import LinearGradient from 'react-native-linear-gradient';
-import api from '../../backend/api/api';
+import api from '../services/api';
 import {useNavigation} from '@react-navigation/native';
 import {SwipeListView} from 'react-native-swipe-list-view';
 import {SearchContext} from '../../backend/context/search';
@@ -66,8 +66,8 @@ export default function AllCustomers() {
       // );
       // console.log('Message:', message);
       // console.log('Scheduled Date:', scheduledAt);
-    } catch (error) {
-      console.log('Error Getting Message', error);
+    } catch {
+      /* template load failed */
     }
   };
 
@@ -92,8 +92,7 @@ export default function AllCustomers() {
         toast.show('Customer Details Updated Succesfully');
         navigation.navigate('AllCustomers');
       }
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.show('Something Went Wrong!!');
     }
   };
@@ -112,9 +111,7 @@ export default function AllCustomers() {
       const res = await api.get(url);
       setCustomers(res.data);
       setAllCustomers(res.data);
-    } catch (error) {
-      console.log('Error Getting Message', error);
-
+    } catch {
       // Alert.alert('Error', 'Failed to Fetch Customers');
     }
   };

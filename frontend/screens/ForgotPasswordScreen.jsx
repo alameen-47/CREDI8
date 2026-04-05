@@ -15,9 +15,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import {useToast} from 'react-native-toast-notifications';
-import axios from 'axios';
-import api from '../../backend/api/api';
-import {set} from 'mongoose';
+import api from '../services/api';
 
 export default function ForgotPasswordScreen() {
   const toast = useToast();
@@ -42,8 +40,7 @@ export default function ForgotPasswordScreen() {
       } else {
         toast.show('Invalid OTP');
       }
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.show('Something went wrong!!!');
     }
   };
@@ -62,8 +59,7 @@ export default function ForgotPasswordScreen() {
       } else {
         toast.show('Something went wrong!!!');
       }
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.show('Error while sending OTP. Please check your email.');
     }
   };

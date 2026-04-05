@@ -13,7 +13,7 @@ import {
 } from 'react-native-responsive-screen';
 import {useNavigation} from '@react-navigation/native';
 import {useToast} from 'react-native-toast-notifications';
-import api from '../../backend/api/api';
+import api from '../services/api';
 import {AuthContext} from '../../backend/context/auth';
 
 export default function EditUser() {

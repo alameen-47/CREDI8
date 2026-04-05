@@ -7,15 +7,16 @@ import {
   TouchableOpacity,
   TextInput,
   RefreshControl,
+  Platform,
 } from 'react-native';
-import React, {useContext, useEffect, useId, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Layout from './Layout';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
-import api from '../../backend/api/api';
+import api from '../services/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useToast} from 'react-native-toast-notifications';
 import {AuthContext} from '../../backend/context/auth';
@@ -46,8 +47,8 @@ export default function EditMessage() {
       });
       toast.show('Messsage SET and Scheduled Successfully ');
       // console.log('Message Created Succesfully', res.data);
-    } catch (error) {
-      console.log('Error Creating Message', error);
+    } catch {
+      toast.show('Could not save message');
     }
   };
 
@@ -85,8 +86,8 @@ export default function EditMessage() {
       );
       // console.log('Message:', message);
       // console.log('Scheduled Date:', scheduledAt);
-    } catch (error) {
-      console.log('Error Getting Message', error);
+    } catch {
+      /* no saved message yet */
     }
   };
   useEffect(() => {

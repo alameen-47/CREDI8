@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useState} from 'react';
-import api from '../api/api.js';
+import api from '../../frontend/services/api.js';
 import {AuthContext} from './auth.js';
 
 export const SearchContext = createContext();
@@ -23,8 +23,7 @@ export const SearchProvider = ({children}) => {
         `/api/v1/customer/search?query=${text}&userId=${userId}`,
       );
       setResults(res.data);
-    } catch (error) {
-      console.log('Error Fetching Customers : ', error);
+    } catch {
       setResults([]);
     }
     setLoading(false);

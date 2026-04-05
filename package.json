@@ -30,6 +30,7 @@
     "nodemon": "3.1.4",
     "react": "18.2.0",
     "react-native": "0.74.3",
+    "react-native-config": "^1.5.3",
     "react-native-gesture-handler": "2.29.1",
     "react-native-linear-gradient": "2.8.3",
     "react-native-popup-menu": "0.18.0",
@@ -42,7 +43,7 @@
     "react-native-toast-notifications": "3.4.0"
   },
   "devDependencies": {
-    "@babel/core": "7.20.0",
+    "@babel/core": "^7.24.0",
     "@react-native-community/cli": "12.1.1",
     "@react-native-community/cli-platform-android": "12.1.1",
     "@react-native/babel-preset": "0.74.85",
@@ -52,6 +53,7 @@
     "@types/react": "18.2.6",
     "@types/react-test-renderer": "18.0.0",
     "babel-plugin-import": "1.13.8",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "concurrently": "8.2.2",
     "eslint": "8.57.0",
     "eslint-plugin-react-native": "4.1.0",

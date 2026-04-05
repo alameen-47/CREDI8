@@ -16,7 +16,7 @@ import {
 } from 'react-native-responsive-screen';
 import {useNavigation} from '@react-navigation/native';
 import {useToast} from 'react-native-toast-notifications';
-import api from '../../backend/api/api';
+import api from '../services/api';
 import {useContext} from 'react';
 import {AuthContext} from '../../backend/context/auth';
 

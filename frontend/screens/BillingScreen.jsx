@@ -13,7 +13,7 @@ import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {useToast} from 'react-native-toast-notifications';
 import {useFocusEffect, useRoute} from '@react-navigation/native';
 import RazorpayCheckout from 'react-native-razorpay';
-import api from '../../backend/api/api';
+import api from '../services/api';
 import {AuthContext} from '../../backend/context/auth';
 
 const TIER_COPY = {

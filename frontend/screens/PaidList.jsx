@@ -13,7 +13,7 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
-import api from '../../backend/api/api';
+import api from '../services/api';
 import {AuthContext} from '../../backend/context/auth';
 
 // const customerData = [
@@ -88,8 +88,8 @@ export default function PaidList() {
       );
      
       setCustomerData(res.data);
-    } catch (error) {
-      console.log(error);
+    } catch {
+      /* load failed */
     }
   };
   useEffect(() => {

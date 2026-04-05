@@ -15,7 +15,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import {useToast} from 'react-native-toast-notifications';
-import api from '../../backend/api/api';
+import api from '../services/api';
 import {AuthContext} from '../../backend/context/auth';
 
 export default function LoginScreen() {

@@ -1,0 +1,7 @@
+# Copy to gradle.properties locally (never commit real passwords).
+# Or define these in ~/.gradle/gradle.properties on your machine.
+
+MYAPP_UPLOAD_STORE_FILE=my-release-key.jks
+MYAPP_UPLOAD_KEY_ALIAS=my-key-alias
+MYAPP_UPLOAD_STORE_PASSWORD=change-me
+MYAPP_UPLOAD_KEY_PASSWORD=change-me

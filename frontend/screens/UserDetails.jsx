@@ -9,7 +9,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import Layout from './Layout';
 import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {useNavigation} from '@react-navigation/native';
-import api from '../../backend/api/api';
+import api from '../services/api';
 import {AuthContext} from '../../backend/context/auth';
 
 export default function UserDetails() {
@@ -24,8 +24,7 @@ export default function UserDetails() {
       }
       const res = await api.get(`/api/v1/auth/user/${auth.user._id}`);
       setUser(res?.data?.user || null);
-    } catch (error) {
-      console.log(error);
+    } catch {
       setUser(auth?.user || null);
     }
   };

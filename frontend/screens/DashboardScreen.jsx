@@ -4,7 +4,7 @@ import Layout from './Layout';
 import {
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import api from '../../backend/api/api';
+import api from '../services/api';
 import {useToast} from 'react-native-toast-notifications';
 
 export default function DashboardScreen() {

@@ -1,17 +1,34 @@
 import {Platform} from 'react-native';
+import Config from 'react-native-config';
 
 const DEV_ANDROID = 'http://10.0.2.2:8086';
 const DEV_IOS = 'http://localhost:8086';
 
-/**
- * Production: your real API origin (HTTPS), same host as backend PUBLIC_API_BASE_URL.
- * Release builds use this constant; debug uses the emulator targets above.
- */
-const PRODUCTION_API_BASE = 'https://api.yourdomain.com';
+function trimBase(url) {
+  if (!url || typeof url !== 'string') {
+    return '';
+  }
+  return url.replace(/\/$/, '');
+}
 
+/**
+ * API origin for the Node backend. Release builds require API_BASE_URL in .env.production
+ * (via react-native-config). Twilio and payment secrets stay on the server only.
+ */
 export function getApiBaseUrl() {
+  const fromEnv = trimBase(Config.API_BASE_URL);
+
   if (typeof __DEV__ !== 'undefined' && __DEV__) {
+    if (fromEnv) {
+      return fromEnv;
+    }
     return Platform.OS === 'android' ? DEV_ANDROID : DEV_IOS;
   }
-  return PRODUCTION_API_BASE.replace(/\/$/, '');
+
+  if (!fromEnv) {
+    throw new Error(
+      'API_BASE_URL is not set. Define it in .env.production before a release build.',
+    );
+  }
+  return fromEnv;
 }

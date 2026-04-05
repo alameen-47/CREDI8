@@ -14,12 +14,12 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
-import api from '../../backend/api/api';
+import api from '../services/api';
 import {SearchContext} from '../../backend/context/search';
 import {useToast} from 'react-native-toast-notifications';
 import {AuthContext} from '../../backend/context/auth';
 
-export default function PaidList() {
+export default function PendingList() {
   const [customer, setCustomer] = useState();
   const [allCustomer, setAllCustomer] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -54,8 +54,8 @@ export default function PaidList() {
         `/api/v1/customer/all-customers?userId=${userId}&paid=false`,
       );
       setAllCustomer(res.data);
-    } catch (error) {
-      console.log(error);
+    } catch {
+      /* network / server error — already surfaced via empty list */
     } finally {
       setRefreshing(false);
     }
