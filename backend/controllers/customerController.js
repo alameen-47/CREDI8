@@ -9,6 +9,7 @@ import {
   publicTwimlUrl,
   sendWhatsAppToCustomers,
 } from '../services/callService.js';
+import logger from '../utils/logger.js';
 
 function escapeRegExp(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -50,23 +51,25 @@ export const SearchController = async (req, res) => {
 };
 
 export const AddCustomer = async (req, res) => {
+  const {custName, custNumber, custAmount, custDueDate, userId: bodyUserId} =
+    req.body;
+  const userId = req.user?._id?.toString() || bodyUserId;
   try {
-    const {custName, custNumber, custAmount, custDueDate, userId: bodyUserId} =
-      req.body;
-    const userId = req.user?._id?.toString() || bodyUserId;
     if (!custName || !custNumber || !custAmount || !custDueDate) {
-      return res.status(400).json({message: 'Please fill in all fields.'});
+      return res.status(400).json({success: false, message: 'Please fill in all fields.'});
     }
     if (!userId) {
-      return res.status(400).json({message: 'User ID is required'});
+      return res.status(400).json({success: false, message: 'User ID is required'});
     }
-    // Ensure custDueDate is in the YYYY-MM-DD format before saving
     const ExistingCustomer = await customerModel.findOne({
+      owner: userId,
       custName,
       custNumber,
     });
     if (ExistingCustomer) {
-      return res.status(400).send({message: 'Customer Already Exists'});
+      return res
+        .status(409)
+        .json({success: false, message: 'Customer already exists'});
     }
     const customer = customerModel({
       custName,
@@ -82,12 +85,15 @@ export const AddCustomer = async (req, res) => {
       customer,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: 'Error in Adding Customer Details',
-      error,
-    });
+    logger.error('AddCustomer failed', {err: error.message, userId});
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        code: 'VALIDATION_ERROR',
+        message: Object.values(error.errors).map(e => e.message).join(', '),
+      });
+    }
+    res.status(500).json({success: false, message: 'Error adding customer'});
   }
 };
 
@@ -143,12 +149,15 @@ export const EditCustomer = async (req, res) => {
       customer: updatedCustomer,
     });
   } catch (error) {
-    console.log(error);
-    res.status(404).send({
-      success: false,
-      message: 'Error While Updating Cusomer Details',
-      error,
-    });
+    logger.error('EditCustomer failed', {err: error.message, id: req.body?._id});
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        code: 'VALIDATION_ERROR',
+        message: Object.values(error.errors).map(e => e.message).join(', '),
+      });
+    }
+    res.status(500).json({success: false, message: 'Error updating customer'});
   }
 };
 
@@ -159,19 +168,38 @@ export const FetchAllCustomer = async (req, res) => {
 
     if (!userId) return res.status(400).json({message: 'User ID is required'});
 
-    const filter = {owner: userId};
+    // Pagination — page is 1-based; limit capped at 200
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(Math.max(1, Number(req.query.limit) || 50), 200);
+    const skip = (page - 1) * limit;
 
+    const filter = {owner: userId};
     if (paid === 'true') filter.paid = true;
     else if (paid === 'false') filter.paid = false;
 
-    const customers = await customerModel.find(filter);
-    res.status(200).send(customers);
-  } catch (error) {
-    console.log(Error);
-    res.status(404).send({
-      success: false,
-      message: 'Error while fetching the All Customer Details',
+    const [customers, total] = await Promise.all([
+      customerModel
+        .find(filter)
+        .sort({custDueDate: 1})
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      customerModel.countDocuments(filter),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: customers,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
     });
+  } catch (error) {
+    logger.error('FetchAllCustomer failed', {err: error.message, userId: req.query.userId});
+    res.status(500).json({success: false, message: 'Error fetching customers'});
   }
 };
 
@@ -246,8 +274,8 @@ export const sendBulkWhatsappMessages = async (req, res) => {
         message: error.message,
       });
     }
-    console.log('Error in sendBulkWhatsappMessages CONTROLLER', error);
-    res.status(500).json({success: false, error: error.message});
+    logger.error('sendBulkWhatsappMessages failed', {err: error.message});
+    res.status(500).json({success: false, message: 'Failed to send messages'});
   }
 };
 //Twilio calling feature controller and calling file
@@ -275,34 +303,47 @@ export const makeBulkCalls = async (req, res) => {
     }
 
     const twimlUrl = publicTwimlUrl();
-    const results = await Promise.all(
-      customers.map(async customer => {
-        const log = await callLogModel.create({
-          owner: ownerId,
-          customerId: customer._id,
-          toNumber: String(customer.custNumber),
-          status: 'queued',
-          lastAttemptAt: new Date(),
-        });
-        try {
-          const call = await placeOutboundCall({
-            toE164: `+966${customer.custNumber}`,
-            twimlUrl,
+
+    // Process calls in batches of 5 to respect Twilio rate limits
+    const CALL_CONCURRENCY = 5;
+    const results = [];
+    for (let i = 0; i < customers.length; i += CALL_CONCURRENCY) {
+      const batch = customers.slice(i, i + CALL_CONCURRENCY);
+      const batchResults = await Promise.all(
+        batch.map(async customer => {
+          const log = await callLogModel.create({
+            owner: ownerId,
+            customerId: customer._id,
+            toNumber: String(customer.custNumber),
+            status: 'queued',
+            lastAttemptAt: new Date(),
           });
-          log.twilioCallSid = call.sid;
-          log.status = 'queued';
-          await log.save();
-          return {ok: true, to: customer.custNumber, sid: call.sid};
-        } catch (error) {
-          log.status = 'failed';
-          log.errorMessage = error.message;
-          log.retryCount = (log.retryCount || 0) + 1;
-          await log.save();
-          console.error(`Failed to call ${customer.custNumber}: `, error.message);
-          return {ok: false, to: customer.custNumber, error: error.message};
-        }
-      }),
-    );
+          try {
+            const call = await placeOutboundCall({
+              toE164: `+966${customer.custNumber}`,
+              twimlUrl,
+            });
+            log.twilioCallSid = call.sid;
+            log.status = 'queued';
+            await log.save();
+            logger.info('Call initiated', {to: customer.custNumber, sid: call.sid});
+            return {ok: true, to: customer.custNumber, sid: call.sid};
+          } catch (error) {
+            log.status = 'failed';
+            log.errorMessage = error.message;
+            log.retryCount = (log.retryCount || 0) + 1;
+            await log.save();
+            logger.error('Call failed', {to: customer.custNumber, err: error.message});
+            return {ok: false, to: customer.custNumber, error: error.message};
+          }
+        }),
+      );
+      results.push(...batchResults);
+      // Pause between batches to avoid rate-limit spikes
+      if (i + CALL_CONCURRENCY < customers.length) {
+        await new Promise(r => setTimeout(r, 300));
+      }
+    }
 
     const ok = results.filter(r => r.ok).length;
     const failed = results.length - ok;
@@ -321,8 +362,8 @@ export const makeBulkCalls = async (req, res) => {
         message: error.message,
       });
     }
-    console.log('Error in makeBulkCalls', error.message);
-    res.status(500).json({success: false, error: error.message});
+    logger.error('makeBulkCalls failed', {err: error.message});
+    res.status(500).json({success: false, message: 'Failed to initiate calls'});
   }
 };
 //twilio voice file for calling
@@ -394,8 +435,8 @@ export const createMessage = async (req, res) => {
       data: created,
     });
   } catch (error) {
-    console.log('Error Creating Message: ', error);
-    res.status(500).json({success: false, error: error.message});
+    logger.error('createMessage failed', {err: error.message, userId: req.body?.userId});
+    res.status(500).json({success: false, message: 'Error saving message'});
   }
 };
 

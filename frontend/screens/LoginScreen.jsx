@@ -16,7 +16,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import {useToast} from 'react-native-toast-notifications';
 import api from '../services/api';
-import {AuthContext} from '../../backend/context/auth';
+import {AuthContext} from '../context/auth';
 
 export default function LoginScreen() {
   const toast = useToast();
@@ -38,10 +38,11 @@ export default function LoginScreen() {
         toast.show('Login Successfull!!!');
         navigation.navigate('HomeScreen');
       } else {
-        alert('Error', res.data.message);
+        toast.show(res.data.message || 'Login failed');
       }
     } catch (error) {
-      toast.show(`Something went wrong!! ${error.message}`);
+      const msg = error.response?.data?.message || 'Something went wrong';
+      toast.show(msg);
     }
   };
 
@@ -64,8 +65,11 @@ export default function LoginScreen() {
               value={email}
               onChangeText={setEmail}
               style={[{width: wp(95)}]}
-              className="pl-5 bg-[#F4F1D6] justify-center h-14 align-middle items-center w-screen  rounded-xl l"
+              className="pl-5 bg-[#F4F1D6] justify-center h-14 align-middle items-center w-screen  rounded-xl"
               placeholder="Enter Your Email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
             />
           </View>
           <View className="flex justify-between ">
@@ -76,6 +80,7 @@ export default function LoginScreen() {
               style={[{width: wp(95)}]}
               className="pl-5 bg-[#F4F1D6] justify-center h-14 align-middle items-center w-screen  rounded-xl"
               placeholder="Enter Your Password"
+              secureTextEntry
             />
           </View>
           <View className="text-[#F4F1D6] flex flex-row">

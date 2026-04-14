@@ -10,7 +10,7 @@ import Layout from './Layout';
 import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {useNavigation} from '@react-navigation/native';
 import api from '../services/api';
-import {AuthContext} from '../../backend/context/auth';
+import {AuthContext} from '../context/auth';
 
 export default function UserDetails() {
   const navigation = useNavigation();

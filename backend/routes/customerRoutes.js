@@ -11,6 +11,7 @@ import {
   SearchController,
   sendBulkWhatsappMessages,
 } from '../controllers/customerController.js';
+import {handleCallStatusCallback} from '../controllers/callsController.js';
 import {authMiddleware} from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
@@ -23,11 +24,10 @@ router.delete('/delete/:id', authMiddleware, DeleteCustomer);
 router.post('/create-message', authMiddleware, createMessage);
 router.post('/send-whatsapp-messages', authMiddleware, sendBulkWhatsappMessages);
 router.post('/make-call', authMiddleware, makeBulkCalls);
-router.get('/twiml-voice', getTwiml);
 router.get('/get-message', authMiddleware, getMesssge);
 
-router.get('/protected', authMiddleware, (req, res) => {
-  res.json({message: 'You are protected', user: req.user});
-});
+// Public endpoints — called by Twilio, not by the app
+router.get('/twiml-voice', getTwiml);
+router.post('/call-status', handleCallStatusCallback);
 
 export default router;

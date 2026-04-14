@@ -6,6 +6,7 @@ import otpGenerator from 'otp-generator';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import {normalizePlan} from '../config/plans.js';
+import logger from '../utils/logger.js';
 
 dotenv.config(); // Load environment variables
 
@@ -35,7 +36,7 @@ export const register = async (req, res) => {
 
     // Validation: Check if all required fields are provided
     if (!name || !email || !password || !phone) {
-      return res.status(400).send({message: 'Please fill in all fields'}); // Return error if any field is missing
+      return res.status(400).send({success: false, code: 'MISSING_FIELDS', message: 'Please fill in all fields'});
     }
 
     // Check if a user with the same email already exists in the database
@@ -72,16 +73,11 @@ export const register = async (req, res) => {
       user: publicUser(user),
     });
   } catch (error) {
-    // Log the error to the console for debugging
-    console.error(error);
-
-    // Send a server error response
-    res.status(500).send({
+    logger.error('register failed', {err: error.message});
+    res.status(500).json({
       success: false,
       code: 'SERVER_ERROR',
-
       message: 'Error in Registration',
-      error, // Include the error for more detailed debugging
     });
   }
 };
@@ -104,15 +100,13 @@ export const login = async (req, res) => {
 
     //user not found
     if (!user) {
-      return res.status(400).send({message: 'Invalid email or password'});
+      return res.status(400).send({success: false, message: 'Invalid email or password'});
     }
 
-    //compare password
     const isValidPassword = await comparePassword(password, user.password);
 
-    //invalid password
     if (!isValidPassword) {
-      return res.status(400).send({message: 'Invalid email or password'});
+      return res.status(400).send({success: false, message: 'Invalid email or password'});
     }
 
     const token = signUserToken(user._id);
@@ -130,12 +124,8 @@ export const login = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      success: false,
-      message: 'Error in Login',
-      error,
-    });
+    logger.error('login failed', {err: error.message});
+    res.status(500).json({success: false, message: 'Error in Login'});
   }
 };
 
@@ -177,26 +167,21 @@ export const forgotPassword = async (req, res) => {
       subject: 'Your OTP for Password Reset of Your CREDI8 Account',
       text: `Your OTP for password reset of Your CREDI8 Account is ${otp}. It will expire in 2 minutes.`,
     };
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log(error);
+    transporter.sendMail(mailOptions, (mailErr, _info) => {
+      if (mailErr) {
+        logger.error('OTP email send failed', {err: mailErr.message, email});
         return res
           .status(500)
-          .json({success: false, message: 'Error sending email'});
+          .json({success: false, message: 'Error sending OTP email'});
       }
-      // console.log(info); // Log the information about the sent email
-
+      logger.info('OTP email sent', {email});
       return res
         .status(200)
         .json({success: true, message: 'OTP sent successfully'});
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: 'Something went wrong333!',
-      error,
-    });
+    logger.error('forgotPassword failed', {err: error.message});
+    res.status(500).json({success: false, message: 'Something went wrong'});
   }
 };
 
@@ -240,12 +225,8 @@ export const verifyOtp = async (req, res) => {
       message: 'Password Changed Successfully',
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: 'Something went wrong!',
-      error,
-    });
+    logger.error('verifyOtp failed', {err: error.message});
+    res.status(500).json({success: false, message: 'Something went wrong'});
   }
 };
 
@@ -340,12 +321,8 @@ export const getAllUsers = async (req, res) => {
       users: userData,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      success: false,
-      message: 'Error fetching users',
-      error,
-    });
+    logger.error('getAllUsers failed', {err: error.message});
+    res.status(500).json({success: false, message: 'Error fetching users'});
   }
 };
 
@@ -383,11 +360,7 @@ export const getUserData = async (req, res) => {
       user,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      success: false,
-      message: 'Error fetching user data',
-      error,
-    });
+    logger.error('getUserData failed', {err: error.message, userId: req.params.id});
+    res.status(500).json({success: false, message: 'Error fetching user data'});
   }
 };

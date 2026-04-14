@@ -9,6 +9,8 @@ module.exports = function (api) {
       ...(isProd
         ? [['transform-remove-console', {exclude: ['error']}]]
         : []),
+      // react-native-reanimated/plugin MUST be last
+      'react-native-reanimated/plugin',
     ],
   };
 };

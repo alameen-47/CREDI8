@@ -27,8 +27,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import api from '../services/api';
 import {useNavigation} from '@react-navigation/native';
 import {SwipeListView} from 'react-native-swipe-list-view';
-import {SearchContext} from '../../backend/context/search';
-import {AuthContext} from '../../backend/context/auth';
+import {SearchContext} from '../context/search';
+import {AuthContext} from '../context/auth';
 import {useToast} from 'react-native-toast-notifications';
 
 export default function AllCustomers() {
@@ -105,21 +105,28 @@ export default function AllCustomers() {
 
   const fetchAllCustomers = async (filter = null) => {
     try {
-      let url = `/api/v1/customer/all-customers?userId=${userId}`;
-      if (filter === 'paid') url += `&paid=true`;
-      else if (filter === 'pending') url += `&paid=false`;
-      const res = await api.get(url);
-      setCustomers(res.data);
-      setAllCustomers(res.data);
+      const params = {userId};
+      if (filter === 'paid') params.paid = 'true';
+      else if (filter === 'pending') params.paid = 'false';
+      const res = await api.get('/api/v1/customer/all-customers', {params});
+      const list = res.data?.data ?? res.data;
+      const arr = Array.isArray(list) ? list : [];
+      setCustomers(arr);
+      setAllCustomers(arr);
     } catch {
-      // Alert.alert('Error', 'Failed to Fetch Customers');
+      /* network error surfaced via empty list */
     }
   };
 
-  const onRefresh = () => {
-    fetchAllCustomers();
-    setPaidFocused(false);
-    setPendingFocused(false);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchAllCustomers();
+      setPaidFocused(false);
+      setPendingFocused(false);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => {
@@ -135,7 +142,7 @@ export default function AllCustomers() {
   // };
 
   useEffect(() => {
-    fetchAllCustomers('pending ');
+    fetchAllCustomers('pending');
     getMessage();
   }, []);
 

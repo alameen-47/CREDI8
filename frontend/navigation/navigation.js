@@ -25,8 +25,8 @@ import BillingScreen from '../screens/BillingScreen.jsx';
 import PrivacyScreen from '../screens/PrivacyScreen.jsx';
 import IntegrationsScreen from '../screens/IntegrationsScreen.jsx';
 import PlanSelectScreen from '../screens/PlanSelectScreen.jsx';
-import {SearchProvider} from '../../backend/context/search.js';
-import AuthProvider from '../../backend/context/auth.js';
+import {SearchProvider} from '../context/search.js';
+import AuthProvider from '../context/auth.js';
 import { MenuProvider } from 'react-native-popup-menu';
 
 const linking = {

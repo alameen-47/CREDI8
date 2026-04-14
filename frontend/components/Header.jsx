@@ -13,8 +13,8 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {useNavigation} from '@react-navigation/native';
-import {useSearch} from '../../backend/context/search.js';
-import {AuthContext} from '../../backend/context/auth.js';
+import {useSearch} from '../context/search.js';
+import {AuthContext} from '../context/auth.js';
 import debounce from 'lodash.debounce'; // Use lodash debounce for better optimization
 
 export default function Header() {

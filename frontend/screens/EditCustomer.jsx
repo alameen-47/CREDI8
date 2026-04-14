@@ -68,7 +68,8 @@ export default function EditCustomer({route}) {
         navigation.navigate('HomeScreen');
       }
     } catch (error) {
-      toast.show(`Somethig went wrong!! ${error.message}`);
+      const msg = error.response?.data?.message || 'Something went wrong';
+      toast.show(msg);
     }
   };
 
@@ -133,8 +134,8 @@ export default function EditCustomer({route}) {
                 </Text>
                 <TextInput
                   name="custName"
-                  value={customer?.custNumber}
-                  onChangeText={text => setCustName(text)}
+                  value={custName || ''}
+                  onChangeText={setCustName}
                   placeholder="Enter Customer Name"
                   className=" text-black bg-white w-auto px-2 rounded-lg  p-1"></TextInput>
               </View>
@@ -150,12 +151,14 @@ export default function EditCustomer({route}) {
                 <TextInput
                   placeholder="Enter New Number "
                   name="custNumber"
-                  value={customer?.custNumber}
+                  value={custNumber || ''}
                   onChangeText={text => {
-                    setCustNumber(text);
+                    if (/^0?5?\d{0,8}$/.test(text) || text === '') {
+                      setCustNumber(text);
+                    }
                   }}
+                  keyboardType="phone-pad"
                   maxLength={10}
-                  // placeholder="Enter Customer Mobile Number"
                   className=" text-black bg-white w-auto px-2 rounded-lg  p-1"></TextInput>
               </View>
               <View className="mb-5 flex-col justify-center align-middle  gap-1">
@@ -167,23 +170,26 @@ export default function EditCustomer({route}) {
                 <Text className=" text-black bg-[#F5DEB3]  w-auto px-2 rounded-lg  p-1">
                   Previous Amount: {customer?.custAmount} SAR
                 </Text>
-                <View className="flex-row">
+                <Text className="text-black bg-white w-auto px-2 rounded-lg p-1 text-center text-lg font-bold">
+                  Current: {custAmount} SAR
+                </Text>
+                <View className="flex-row gap-2 mt-1">
                   <TextInput
                     className="flex-1 rounded-xl bg-green-500 p-[1%] text-black text-2xl text-center"
-                    placeholder="-"
+                    placeholder="+ Add"
                     placeholderTextColor="#000"
-                    value={customer?.custAmount}
+                    keyboardType="numeric"
                     onEndEditing={event =>
-                      handleAddAmount(event.nativeEvent.text, 'sub')
+                      handleAddAmount(event.nativeEvent.text, 'add')
                     }
                   />
                   <TextInput
                     className="flex-1 bg-red-600 rounded-xl p-[1%] text-black text-2xl text-center"
-                    placeholder="+"
+                    placeholder="- Subtract"
                     placeholderTextColor="#000"
-                    value={customer?.custAmount}
+                    keyboardType="numeric"
                     onEndEditing={event =>
-                      handleAddAmount(event.nativeEvent.text, 'add')
+                      handleAddAmount(event.nativeEvent.text, 'sub')
                     }
                   />
                 </View>

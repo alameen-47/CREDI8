@@ -1,4 +1,5 @@
 {
     "px-to-rem.px-per-rem": 16,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "postman.settings.dotenv-detection-notification-visibility": false
 }

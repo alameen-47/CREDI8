@@ -88,3 +88,6 @@ ios/build/
 !.yarn/versions
 android/app/my-release-key.jks
 android/app/my-release-key.jks
+TODO.md
+CREDI8@0.0.1
+nodemon

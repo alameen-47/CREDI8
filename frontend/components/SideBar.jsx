@@ -5,7 +5,7 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {useNavigation} from '@react-navigation/native';
-import {AuthContext} from '../../backend/context/auth';
+import {AuthContext} from '../context/auth';
 
 export default function SideBar() {
   const [toggle, setToggle] = useState(false);
@@ -168,7 +168,8 @@ export default function SideBar() {
             <TouchableOpacity
               onPress={() => {
                 setToggle(false);
-                navigation.navigate('EditCustomer');
+                // Navigate to AllCustomers where swipe-to-edit is available
+                navigation.navigate('AllCustomers');
               }}
               className="flex flex-row justify-between items-center align-middle gap-3 px-2">
               <Image
@@ -222,9 +223,8 @@ export default function SideBar() {
           <View className="flex justify-start items-center">
             <TouchableOpacity
               onPress={async () => {
-                await removeAuthData();
                 setToggle(false);
-                navigation.navigate('LogIn');
+                await removeAuthData();
               }}
               className="flex flex-row justify-between items-center align-middle gap-3 px-2">
               <Image

@@ -10,12 +10,13 @@ import {
 } from '../controllers/authController.js';
 import {authMiddleware} from '../middlewares/authMiddleware.js';
 import {requireRole} from '../middlewares/requireRole.js';
+import otpLimiter from '../middlewares/otpLimiter.js';
 
 const router = express.Router();
 
 router.post('/register', register);
 router.post('/login', login);
-router.post('/send-otp', forgotPassword);
+router.post('/send-otp', otpLimiter, forgotPassword);
 router.post('/reset-password', verifyOtp);
 router.post('/update-profile', authMiddleware, updateProfileController);
 

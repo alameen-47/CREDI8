@@ -15,12 +15,12 @@ import {
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
 import api from '../services/api';
-import {SearchContext} from '../../backend/context/search';
+import {SearchContext} from '../context/search';
 import {useToast} from 'react-native-toast-notifications';
-import {AuthContext} from '../../backend/context/auth';
+import {AuthContext} from '../context/auth';
 
 export default function PendingList() {
-  const [customer, setCustomer] = useState();
+  const [customer, setCustomer] = useState([]);
   const [allCustomer, setAllCustomer] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const {query} = useContext(SearchContext);
@@ -48,12 +48,13 @@ export default function PendingList() {
   };
 
   const fetchAllCustomer = async () => {
+    setRefreshing(true);
     try {
-      setRefreshing(true);
-      const res = await api.get(
-        `/api/v1/customer/all-customers?userId=${userId}&paid=false`,
-      );
-      setAllCustomer(res.data);
+      const res = await api.get('/api/v1/customer/all-customers', {
+        params: {userId, paid: 'false'},
+      });
+      const list = res.data?.data ?? res.data;
+      setAllCustomer(Array.isArray(list) ? list : []);
     } catch {
       /* network / server error — already surfaced via empty list */
     } finally {

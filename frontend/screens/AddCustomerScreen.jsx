@@ -18,7 +18,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useToast} from 'react-native-toast-notifications';
 import api from '../services/api';
 import {useContext} from 'react';
-import {AuthContext} from '../../backend/context/auth';
+import {AuthContext} from '../context/auth';
 
 export default function AddCustomerScreen() {
   const {auth} = useContext(AuthContext);
@@ -49,7 +49,8 @@ export default function AddCustomerScreen() {
         navigation.navigate('CustomerList');
       }
     } catch (error) {
-      toast.show(`Something went wrong!! ${error.message}`);
+      const msg = error.response?.data?.message || 'Something went wrong';
+      toast.show(msg);
     }
   };
 
@@ -110,8 +111,13 @@ export default function AddCustomerScreen() {
               <TextInput
                 value={custNumber}
                 maxLength={10}
-                onChangeText={custNumber => setCustNumber(custNumber)}
-                placeholder="Enter Customer Mobile Number"
+                onChangeText={text => {
+                  if (/^0?5?\d{0,8}$/.test(text) || text === '') {
+                    setCustNumber(text);
+                  }
+                }}
+                keyboardType="phone-pad"
+                placeholder="Enter Customer Mobile Number (05xxxxxxxx)"
                 className="text-black bg-white w-[100%] px-2 rounded-lg p-1"></TextInput>
             </View>
             <View className="mb-5 flex-col justify-center align-middle gap-2">
@@ -122,8 +128,9 @@ export default function AddCustomerScreen() {
               </Text>
               <TextInput
                 value={custAmount}
-                onChangeText={custAmount => setCustAmount(custAmount)}
+                onChangeText={setCustAmount}
                 placeholder="Enter Amount"
+                keyboardType="numeric"
                 className="text-black bg-white w-[100%] px-2 rounded-lg p-1"></TextInput>
             </View>
             <View className="mb-5 flex-col justify-center align-middle gap-2">

@@ -14,7 +14,6 @@ import {
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
-import axios from 'axios';
 import api from '../services/api';
 import {useToast} from 'react-native-toast-notifications';
 
@@ -27,7 +26,6 @@ export default function SignUpScreen() {
   const toast = useToast();
 
   const handleSubmit = async () => {
-
     try {
       const res = await api.post('/api/v1/auth/register', {
         name,
@@ -71,12 +69,12 @@ export default function SignUpScreen() {
           <View className="flex justify-between ">
             <Text className="text-[#F4F1D6] text-lg pl-2">Name:</Text>
             <TextInput
-              type="name"
               value={name}
               onChangeText={setName}
-              style={[{width: wp(95)}]}
+              style={[{width: wp(95), color: 'black'}]}
               className="pl-5 bg-[#F4F1D6] justify-center h-12 align-middle items-center w-screen  rounded-xl"
               placeholder="Enter Your Name"
+              placeholderTextColor="black" // 👈 placeholder color
               autoFocus
               required
             />
@@ -84,34 +82,39 @@ export default function SignUpScreen() {
           <View className="flex justify-between ">
             <Text className="text-[#F4F1D6] text-lg pl-2">Email:</Text>
             <TextInput
-              type="email"
               value={email}
               onChangeText={setEmail}
-              style={[{width: wp(95)}]}
+              style={[{width: wp(95), color: 'black'}]}
               className="pl-5 bg-[#F4F1D6] justify-center h-12 align-middle items-center w-screen  rounded-xl"
               placeholder="Enter Your Email"
+              placeholderTextColor="black" // 👈 placeholder color
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
             />
           </View>
           <View className="flex justify-between ">
             <Text className="text-[#F4F1D6] text-lg pl-2">Password:</Text>
             <TextInput
-              type="password"
               value={password}
               onChangeText={setPassword}
-              style={[{width: wp(95)}]}
+              style={[{width: wp(95), color: 'black'}]}
               className="pl-5 bg-[#F4F1D6] justify-center h-12 align-middle items-center w-screen  rounded-xl"
               placeholder="Enter Your Password"
+              placeholderTextColor="black" // 👈 placeholder color
+              secureTextEntry
             />
           </View>
           <View className="flex justify-between ">
             <Text className="text-[#F4F1D6] text-lg pl-2">Whatsapp No:</Text>
             <TextInput
-              type="text"
               value={phone}
               onChangeText={setPhone}
-              style={[{width: wp(95)}]}
+              style={[{width: wp(95), color: 'black'}]}
               className="pl-5 bg-[#F4F1D6] justify-center h-12 align-middle items-center w-screen  rounded-xl"
               placeholder="Enter Your Whatsapp Number"
+              placeholderTextColor="black" // 👈 placeholder color
+              keyboardType="phone-pad"
             />
           </View>
           <View className="text-[#F4F1D6] flex flex-row ">

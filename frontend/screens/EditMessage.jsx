@@ -19,7 +19,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import api from '../services/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useToast} from 'react-native-toast-notifications';
-import {AuthContext} from '../../backend/context/auth';
+import {AuthContext} from '../context/auth';
 
 export default function EditMessage() {
   const toast = useToast();

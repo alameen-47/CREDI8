@@ -14,7 +14,15 @@ const api = axios.create({
 
 let bearerToken = null;
 
-/** Sync bearer token with session storage — use this instance only, not `axios.defaults`. */
+/**
+ * Registered by AuthProvider so the Axios interceptor can trigger a logout
+ * without importing React context (avoids circular deps).
+ */
+let _onUnauthorized = null;
+export function registerUnauthorizedHandler(fn) {
+  _onUnauthorized = fn;
+}
+
 export function setApiAuthToken(token) {
   bearerToken = token || null;
   if (bearerToken) {
@@ -39,6 +47,7 @@ function isRetryableError(err) {
     );
   }
   const status = err.response.status;
+  // Do NOT retry 401 — those need immediate logout
   return status >= 500 || status === 408 || status === 429;
 }
 
@@ -46,17 +55,25 @@ api.interceptors.response.use(
   response => response,
   async err => {
     const config = err.config;
-    if (__DEV__ && err.response?.status === 401) {
-      console.warn('API 401 — session may have expired');
+
+    // ── 401: session expired / invalid token → force logout ──────────────────
+    if (err.response?.status === 401) {
+      if (_onUnauthorized) {
+        _onUnauthorized();
+      }
+      return Promise.reject(err);
     }
+
     if (!config || !isRetryableError(err)) {
       return Promise.reject(err);
     }
+
     config.__retryCount = config.__retryCount || 0;
     if (config.__retryCount >= MAX_RETRIES) {
       return Promise.reject(err);
     }
     config.__retryCount += 1;
+    // Exponential back-off: 500 ms, 1000 ms
     const delayMs = 500 * config.__retryCount;
     await new Promise(resolve => setTimeout(resolve, delayMs));
     return api(config);

@@ -14,7 +14,7 @@ import {useToast} from 'react-native-toast-notifications';
 import {useFocusEffect, useRoute} from '@react-navigation/native';
 import RazorpayCheckout from 'react-native-razorpay';
 import api from '../services/api';
-import {AuthContext} from '../../backend/context/auth';
+import {AuthContext} from '../context/auth';
 
 const TIER_COPY = {
   free: {

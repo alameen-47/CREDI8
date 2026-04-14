@@ -26,8 +26,7 @@ export default function ForgotPasswordScreen() {
   const navigation = useNavigation();
 
   //NEW PASSWORD
-  const handleResetPassword = async e => {
-    e.preventDefault();
+  const handleResetPassword = async () => {
     try {
       const res = await api.post('/api/v1/auth/reset-password', {
         email,
@@ -46,9 +45,7 @@ export default function ForgotPasswordScreen() {
   };
 
   //SEND OTP
-  const handleSendOtp = async e => {
-    e.preventDefault();
-
+  const handleSendOtp = async () => {
     try {
       const res = await api.post('/api/v1/auth/send-otp', {
         email,
