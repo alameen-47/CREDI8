@@ -1,6 +1,5 @@
 import {appEnvironment, isMockMode} from '../config/appMode.js';
 import {isBillingConfigured, getPublishableKeyId} from '../services/billingService.js';
-import {isTwilioVoiceConfigured} from '../services/callService.js';
 
 export async function getRuntimeConfig(req, res, next) {
   try {
@@ -11,9 +10,6 @@ export async function getRuntimeConfig(req, res, next) {
       razorpay: {
         billingConfigured: isBillingConfigured(),
         publishableKeyId: getPublishableKeyId(),
-      },
-      twilio: {
-        voiceReady: isTwilioVoiceConfigured(),
       },
     });
   } catch (e) {

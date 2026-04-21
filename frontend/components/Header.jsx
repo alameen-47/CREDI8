@@ -10,12 +10,7 @@ import {
   StyleSheet,
   Modal,
 } from 'react-native';
-import React, {
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -207,7 +202,7 @@ export default function Header() {
         </View>
       </Modal>
 
-      {/* ── Hamburger / Profile menu ── */}
+      {/* ── Hamburgerw   / Profile menu ── */}
       <View
         ref={menuWrapperRef}
         style={styles.menuWrapper}

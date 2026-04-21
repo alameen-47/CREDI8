@@ -101,14 +101,17 @@ export default function PendingList() {
   const callCustomers = async () => {
     setLoading(true);
     try {
-      const res = await api.post('/api/v1/customer/make-call', {});
+      const res = await api.post('/api/v1/customer/make-call', {userId});
       if (res.data?.success) {
-        toast.show('Call Made to All Successfully!!');
+        toast.show(res.data.message || 'Calls initiated');
+      } else {
+        toast.show(res.data?.message || 'Failed to initiate calls');
       }
     } catch (error) {
       toast.show(`Something went wrong !!! ${error.message}`);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

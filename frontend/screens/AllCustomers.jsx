@@ -203,17 +203,20 @@ export default function AllCustomers() {
   const callCustomers = async () => {
     setActionLoading(true);
     try {
-      const res = await api.post('/api/v1/customer/make-call', {});
+      const res = await api.post('/api/v1/customer/make-call', {userId});
       if (res.data?.success) {
         toast.show(res.data.message || 'Calls initiated');
+      } else {
+        toast.show(res.data?.message || 'Failed to initiate calls');
       }
     } catch (error) {
       toast.show(
         error.response?.data?.message ||
           `Something went wrong: ${error.message}`,
       );
+    } finally {
+      setActionLoading(false);
     }
-    setActionLoading(false);
   };
   return (
     <Layout>

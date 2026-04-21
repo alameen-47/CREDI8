@@ -5,7 +5,7 @@
  * Usage:
  *   import logger from '../utils/logger.js';
  *   logger.info('Customer added', { userId, customerId });
- *   logger.error('Twilio call failed', { err: e.message, toNumber });
+ *   logger.error('Call failed', { err: e.message, toNumber });
  */
 
 const isProd = process.env.NODE_ENV === 'production';

@@ -15,7 +15,6 @@ import saasRoutes from './routes/saasRoutes.js';
 import {handleRazorpayWebhook} from './controllers/billingController.js';
 import {apiLimiter, authLimiter} from './middlewares/rateLimiter.js';
 import {errorHandler, notFoundHandler} from './middlewares/errorHandler.js';
-import {processDueScheduledCalls} from './controllers/callsController.js';
 
 import path from 'path';
 import {fileURLToPath} from 'url';
@@ -102,13 +101,6 @@ app.use('/api/v1', apiLimiter, saasRoutes);
 // ── 404 + centralised error handler ──────────────────────────────────────────
 app.use(notFoundHandler);
 app.use(errorHandler);
-
-// ── Scheduled calls worker (every minute) ────────────────────────────────────
-cron.schedule('* * * * *', () => {
-  processDueScheduledCalls().catch(err =>
-    logger.error('Scheduled calls worker failed', {err: err.message}),
-  );
-});
 
 // ── Start server ──────────────────────────────────────────────────────────────
 const PORT = Number(process.env.PORT || 8086);

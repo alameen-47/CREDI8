@@ -10,7 +10,7 @@ const callLogSchema = new mongoose.Schema(
     },
     customerId: {type: mongoose.Schema.Types.ObjectId, ref: 'customers'},
     toNumber: {type: String},
-    twilioCallSid: {type: String},
+    providerCallSid: {type: String},
     status: {
       type: String,
       enum: [

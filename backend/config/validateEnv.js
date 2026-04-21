@@ -17,7 +17,7 @@ export function validateEnv() {
 
   if (isMockMode()) {
     console.warn(
-      '[env] MOCK_MODE is on — Razorpay & Twilio use simulations; not for real money or PSTN.'
+      '[env] MOCK_MODE is on — billing simulation is enabled; not for real money.'
         .yellow,
     );
   }
@@ -30,15 +30,19 @@ export function validateEnv() {
     }
     if (!process.env.PUBLIC_API_BASE_URL && !process.env.PUBLIC_BASE_URL) {
       warnings.push(
-        'PUBLIC_API_BASE_URL: Twilio cannot reach your TwiML URL without a public HTTPS base',
+        'PUBLIC_API_BASE_URL is missing — external integrations may require a public HTTPS base',
       );
     }
-    const tw =
-      process.env.TWILIO_ACCOUNT_SID ||
-      process.env.TWILIO_SSID ||
-      process.env.TWILIO_AUTH_TOKEN;
-    if (!tw && !isMockMode()) {
-      warnings.push('Twilio env vars missing — calling/WhatsApp will not work');
+    if (!isMockMode()) {
+      if (
+        !process.env.TWILIO_ACCOUNT_SID ||
+        !process.env.TWILIO_AUTH_TOKEN ||
+        !process.env.TWILIO_PHONE_NUMBER
+      ) {
+        warnings.push(
+          'Twilio Voice env vars missing — PSTN calling will not work (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER)',
+        );
+      }
     }
     if (
       !process.env.RAZORPAY_KEY_ID ||

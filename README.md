@@ -1,6 +1,6 @@
 ﻿# CREDI8
 
-React Native client with a Node/Mongo backend. Twilio voice/WhatsApp and Razorpay run **only on the server**; the mobile app talks to your API over HTTPS using a JWT from login (stored in AsyncStorage).
+React Native client with a Node/Mongo backend. Billing runs on the server; the mobile app talks to your API over HTTPS using a JWT from login (stored in AsyncStorage).
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ React Native client with a Node/Mongo backend. Twilio voice/WhatsApp and Razorpa
 
 Use `react-native-config`. Copy `.env.example` to `.env.development` and `.env.production` (gitignored). Set `API_BASE_URL` in `.env.production` for release builds.
 
-Twilio, Razorpay secrets, JWT, Mongo: **backend/.env** only (`backend/.env.example`).
+Razorpay secrets, JWT, Mongo: **backend/.env** only (`backend/.env.example`).
 
 ## Install and run
 
@@ -41,13 +41,7 @@ Open `ios/CREDI8.xcworkspace`, Product - Archive.
 
 ## Security
 
-| Secret | Where |
-|--------|--------|
-| Twilio / Razorpay | Server |
-| API URL | App env (public) |
-| User JWT | AsyncStorage (Keychain optional hardening) |
-
-**Twilio is not called from the app JS** — only from `backend/` (`callService.js`, controllers). Never put `TWILIO_AUTH_TOKEN` in the mobile `.env`.
+Razorpay/JWT/Mongo secrets belong on the server. Do not put any private keys in the mobile `.env`.
 
 **iOS ATS:** `Info.plist` uses `NSAllowsArbitraryLoads=false` and `NSAllowsLocalNetworking=true` for dev.
 
